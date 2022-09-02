@@ -1,0 +1,150 @@
+//sgn
+#include <iostream>
+#include <fstream>
+#include <string>
+#include <sstream>
+#include <utility>
+#include <sys/stat.h>
+
+#include "FileManager.h"
+
+namespace util {
+	FileManager::FileManager()
+		: mpCfgMgr{ ConfigManager::getInstance() }
+		, mLastMsgNo{ 0 }
+		, mLastWrittenPos{ 0 }
+		, mLastWrittenLen{ 0 }
+		, mLogger{ Logger::getInstance() }
+	{
+		//	Create BBFile if it does not exists already
+		struct stat buffer;
+		if (stat(mpCfgMgr->getBBFile().c_str(), &buffer) != 0) {
+			std::ofstream fs(mpCfgMgr->getBBFile()); fs.close();
+		}
+		mBBFile.open(mpCfgMgr->getBBFile(), std::ios::out | std::ios::in);
+	}
+
+	void FileManager::init() {
+		//	Populate File Indices with message no, start pos and length
+		std::string strLine;
+		size_t ulLineStart = 0;
+		mBBFile.seekg(0, std::ios::beg);
+		while (getLine(mBBFile, strLine, ulLineStart)) {
+			if (strLine.empty()) continue;
+
+			auto nPos = strLine.find_first_of("/");
+			if (nPos == std::string::npos) throw std::runtime_error("FileManager: Corrupted BBFile");
+
+			auto strMsgNo = strLine.substr(0, nPos);
+			auto ulMsgNo = std::stoul(strMsgNo);
+			if (ulMsgNo == 0) continue;
+			if (ulMsgNo > mLastMsgNo) mLastMsgNo = ulMsgNo;
+
+			size_t ulLen = strLine.length();
+			auto posAndLen = std::make_pair(ulLineStart, ulLen);
+
+			mFileIndices.insert({ulMsgNo, posAndLen});
+		}
+	}
+
+	std::string FileManager::readFromFile(size_t pMsgNo) {
+		std::string strLine;
+
+		if (mFileIndices.count(pMsgNo) > 0) {
+			auto posAndLen = mFileIndices.at(pMsgNo);
+			char* pBuffer = new char[posAndLen.second + 1];
+
+			mAccessLock.lock();
+			mBBFile.clear();
+			mBBFile.seekg(posAndLen.first, std::ios::beg);
+			mBBFile.read(pBuffer, posAndLen.second);
+			mAccessLock.unlock();
+
+			pBuffer[posAndLen.second] = '\0';
+			strLine = pBuffer;
+			delete[] pBuffer;
+		}
+		
+		return strLine;
+	}
+
+	size_t FileManager::writeToFile(std::string pSender, std::string pMsg) {
+		std::stringstream ss;
+		ss << ++mLastMsgNo << "/" << pSender << "/" << pMsg << std::endl;
+		if (ss.str().length() < MIN_MSG_LENGTH) return false;
+
+		size_t ulLineStart = moveToEOF();
+		writeAtPos(0, std::ios::end, ss.str());
+
+		mLastWrittenPos = ulLineStart;
+		mLastWrittenLen = ss.str().length();
+		auto posAndLen = std::make_pair(ulLineStart, ss.str().length());
+		mFileIndices.insert({ mLastMsgNo, posAndLen });
+
+		return mLastMsgNo;
+	}
+
+	bool FileManager::undoLastWritten() {
+		if (mLastWrittenLen < MIN_MSG_LENGTH) return false;
+
+		writeDummyAtPos(mLastWrittenPos, mLastWrittenLen);
+		mLastMsgNo--;
+
+		return true;
+	}
+
+	bool FileManager::replaceMessage(size_t pMsgNo, std::string pSender, std::string pMsg) { 
+		if (mFileIndices.count(pMsgNo) == 0) return false;
+
+		std::stringstream ss;
+		ss << pMsgNo << "/" << pSender << "/" << pMsg << std::endl;
+		std::pair<size_t,size_t> posAndLen = mFileIndices.at(pMsgNo);
+
+		if (ss.str().length() == posAndLen.second) {
+			writeAtPos(posAndLen.first, std::ios::beg, ss.str());
+		} else if (ss.str().length() < posAndLen.second) {
+			std::string strPad(posAndLen.second - ss.str().length(), ' ');
+			ss.str("");  ss << pMsgNo << "/" << pSender << "/" << pMsg << strPad << std::endl;
+			writeAtPos(posAndLen.first, std::ios::beg, ss.str());
+		} else {
+			writeDummyAtPos(posAndLen.first, posAndLen.second);
+			size_t ulLineStart = moveToEOF();
+			writeAtPos(ulLineStart, std::ios::beg, ss.str());
+		}
+		return true;
+	}
+
+	bool FileManager::getLine(std::fstream& pStream, std::string& pStrLine, size_t& pPos) {
+		char ch;
+		bool iRet = false;
+		pPos = pStream.tellg();
+		pStrLine.clear();
+		while (pStream.get(ch)) {
+			if (ch == '\n' || ch == '\r') { iRet = true; break; }
+			pStrLine += ch;
+		}
+		return iRet || !pStrLine.empty();
+	}
+
+	void FileManager::writeAtPos(size_t pPos, std::ios::seekdir pDir, const std::string& pMsg) {
+		mBBFile.clear();
+		mBBFile.seekp(pPos, pDir);
+		mBBFile.write(pMsg.c_str(), pMsg.length());
+		mBBFile.flush();
+	}
+
+	void FileManager::writeDummyAtPos(size_t pPos, size_t pLen) {
+		if (pLen > MIN_MSG_LENGTH) {
+			std::string strDummy(pLen, '0');
+			strDummy[1] = '/';
+			strDummy[3] = '/';
+			writeAtPos(pPos, std::ios::beg, strDummy);
+		}
+	}
+
+	size_t FileManager::moveToEOF() {
+		mBBFile.clear();
+		mBBFile.seekg(0, std::ios::end);
+		return mBBFile.tellg();
+	}
+} // namepsace util

@@ -4,6 +4,7 @@
 #include <string>
 #include <sstream>
 #include <utility>
+#include <regex>
 #include <sys/stat.h>
 
 #include "FileManager.h"
@@ -35,6 +36,8 @@ namespace util {
 		unsigned int uiNoOfLines = 0;
 		mLogger << MODULE_NAME << "Initializing" << std::endl;
 		while (getLine(mBBFile, strLine, ulLineStart)) {
+			strLine = std::regex_replace(strLine, std::regex("^\\s+"), std::string(""));
+			strLine = std::regex_replace(strLine, std::regex("\\s+$"), std::string(""));
 			if (strLine.empty()) continue;
 
 			auto nPos = strLine.find_first_of("/");

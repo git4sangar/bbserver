@@ -14,10 +14,10 @@ namespace util {
 	public:
 		virtual ~Logger() {}
 
-		Logger& operator<<(const std::string strLog);
-		Logger& operator<<(const int val);
+		Logger& operator<<(const std::string& strLog);
+		Logger& operator<<(const size_t val);
 
-			// this is the type of std::cout
+		// this is the type of std::cout
 		typedef std::basic_ostream<char, std::char_traits<char> > CoutType;
 		// this is the function signature of std::endl
 		typedef CoutType& (*StandardEndLine)(CoutType&);

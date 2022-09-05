@@ -5,6 +5,8 @@
 #include "Constants.h"
 #include "StateMachine.h"
 
+#define MODULE_NAME "StateMachine : "
+
 IdleState* IdleState::pThis = nullptr;
 ServerPrecommitState* ServerPrecommitState::pThis = nullptr;
 ServerCommitState* ServerCommitState::pThis = nullptr;
@@ -37,6 +39,8 @@ StateMachine* StateMachine::getInstance(States pState, std::shared_ptr<Protocol>
 }
 
 StateMachine* IdleState::onWriteRequest() {
+	mLogger << MODULE_NAME << "--- IdleState::onWriteRequest ---" << std::endl;
+	mLogger << MODULE_NAME << "Acq Lk, Brd Msg, Add Tmr" << std::endl;
 	mpProtocol->grabWriteLock();
 	mpProtocol->broadcastMessage(PRECOMMIT);
 	mpProtocol->addToTimer();
@@ -44,6 +48,8 @@ StateMachine* IdleState::onWriteRequest() {
 }
 
 StateMachine* IdleState::onPrecommit(const std::string& pHost, unsigned int pPort) {
+	mLogger << MODULE_NAME << "--- IdleState::onPrecommit ---" << std::endl;
+	mLogger << MODULE_NAME << "Acq Lk, Add Tmr, Snd +Ak" << std::endl;
 	mpProtocol->grabWriteLock();
 	mpProtocol->addToTimer();
 	mpProtocol->sendMessage(pHost, pPort, POSITIVE_ACK);
@@ -51,6 +57,8 @@ StateMachine* IdleState::onPrecommit(const std::string& pHost, unsigned int pPor
 }
 
 StateMachine* ServerPrecommitState::onNegativeAckOrTimeout() {
+	mLogger << MODULE_NAME << "--- ServerPrecommitState::onNegativeAckOrTimeout ---" << std::endl;
+	mLogger << MODULE_NAME << "Brd Msg, Wrt Resp, Rel Lk" << std::endl;
 	mpProtocol->broadcastMessage(ABORT);
 	mpProtocol->sendWriteResponse("ERROR WRITE Peers negative ack or timedout");
 	mpProtocol->releaseWriteLock();
@@ -58,6 +66,8 @@ StateMachine* ServerPrecommitState::onNegativeAckOrTimeout() {
 }
 
 StateMachine* ServerPrecommitState::onAllAck() {
+	mLogger << MODULE_NAME << "--- ServerPrecommitState::onAllAck ---" << std::endl;
+	mLogger << MODULE_NAME << "Rmv Tmr, Brd Msg, Add Tmr" << std::endl;
 	mpProtocol->removeActiveTimer();
 	mpProtocol->broadcastMessage(COMMIT);
 	mpProtocol->addToTimer();
@@ -66,11 +76,15 @@ StateMachine* ServerPrecommitState::onAllAck() {
 
 //	All peers responded success
 StateMachine* ServerCommitState::onSuccess() {
+	mLogger << MODULE_NAME << "--- ServerCommitState::onSuccess ---" << std::endl;
+	mLogger << MODULE_NAME << "Wrt Msg" << std::endl;
 	auto pNewState = mpProtocol->writeMsg() ? onAllSuccess() : onFailure();
 	return pNewState;
 }
 
 StateMachine* ServerCommitState::onAllSuccess() {
+	mLogger << MODULE_NAME << "--- ServerCommitState::onAllSuccess ---" << std::endl;
+	mLogger << MODULE_NAME << "Rmv Tmr, Brd Msg, Wrt Resp, Rel Lk" << std::endl;
 	mpProtocol->removeActiveTimer();
 	mpProtocol->broadcastMessage(SUCCESSFUL);
 	mpProtocol->sendWriteResponse("WROTE");
@@ -79,6 +93,8 @@ StateMachine* ServerCommitState::onAllSuccess() {
 }
 
 StateMachine* ServerCommitState::onFailure() {
+	mLogger << MODULE_NAME << "--- ServerCommitState::onFailures ---" << std::endl;
+	mLogger << MODULE_NAME << "Rmv Tmr, Brd Msg, Wrt Resp, Rel Lk" << std::endl;
 	mpProtocol->removeActiveTimer();
 	mpProtocol->broadcastMessage(UNSUCCESSFUL);
 	mpProtocol->sendWriteResponse("ERROR WRITE Peers write failed");
@@ -87,6 +103,8 @@ StateMachine* ServerCommitState::onFailure() {
 }
 
 StateMachine* ClientPrecommitState::onCommit(const std::string& pHost, unsigned int pPort) {
+	mLogger << MODULE_NAME << "--- ClientPrecommitState::onCommit ---" << std::endl;
+	mLogger << MODULE_NAME << "Rmv Tmr, Wrt Msg, Brd Msg, Add Tmr" << std::endl;
 	mpProtocol->removeActiveTimer();
 	mpProtocol->writeMsg()
 		? mpProtocol->sendMessage(pHost, pPort, SUCCESS)
@@ -96,23 +114,31 @@ StateMachine* ClientPrecommitState::onCommit(const std::string& pHost, unsigned 
 }
 
 StateMachine* ClientPrecommitState::onAbort(const std::string& pHost, unsigned int pPort) {
+	mLogger << MODULE_NAME << "--- ClientPrecommitState::onAbort ---" << std::endl;
+	mLogger << MODULE_NAME << "Rmv Tmr, Rel Lk" << std::endl;
 	mpProtocol->removeActiveTimer();
 	mpProtocol->releaseWriteLock();
 	return IdleState::getInstance(mpProtocol);
 }
 
 StateMachine* ClientPrecommitState::onNegativeAckOrTimeout() {
+	mLogger << MODULE_NAME << "--- ClientPrecommitState::onNegativeAckOrTimeout ---" << std::endl;
+	mLogger << MODULE_NAME << "Rel Lk" << std::endl;
 	mpProtocol->releaseWriteLock();
 	return IdleState::getInstance(mpProtocol);
 }
 
 StateMachine* ClientCommitState::onSuccessful(const std::string& pHost, unsigned int pPort) {
+	mLogger << MODULE_NAME << "--- ClientCommitState::onSuccessful ---" << std::endl;
+	mLogger << MODULE_NAME << "Rmv Tmr, Rel Lk" << std::endl;
 	mpProtocol->removeActiveTimer();
 	mpProtocol->releaseWriteLock();
 	return IdleState::getInstance(mpProtocol);
 }
 
 StateMachine* ClientCommitState::onUnsuccessful(const std::string& pHost, unsigned int pPort) {
+	mLogger << MODULE_NAME << "--- ClientCommitState::onUnsuccessful ---" << std::endl;
+	mLogger << MODULE_NAME << "Rmv Tmr, Undo Wrt, Rel Lk" << std::endl;
 	mpProtocol->removeActiveTimer();
 	mpProtocol->undoWrite();
 	mpProtocol->releaseWriteLock();
@@ -120,14 +146,16 @@ StateMachine* ClientCommitState::onUnsuccessful(const std::string& pHost, unsign
 }
 
 StateMachine* ClientCommitState::onNegativeAckOrTimeout() {
+	mLogger << MODULE_NAME << "--- ClientCommitState::onNegativeAckOrTimeout ---" << std::endl;
+	mLogger << MODULE_NAME << "Rmv Tmr, Undo Wrt, Rel Lk" << std::endl;
 	mpProtocol->removeActiveTimer();
 	mpProtocol->undoWrite();
 	mpProtocol->releaseWriteLock();
 	return IdleState::getInstance(mpProtocol);
 }
 
-std::string StateMachine::getStateName(States pState) {
-	switch (pState) {
+std::string StateMachine::getStateName() {
+	/*switch (getStateEnum()) {
 	case States::ServerPrecommit:
 		return "Server Precommit";
 
@@ -146,6 +174,6 @@ std::string StateMachine::getStateName(States pState) {
 	case States::Idle:
 	default:
 		return "Idle";
-	}
+	}*/
 	return std::string();
 }

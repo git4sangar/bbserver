@@ -9,6 +9,8 @@
 #include "Constants.h"
 #include "Protocol.h"
 
+#define MODULE_NAME "Protocol : "
+
 Protocol::Protocol(FileManager::Ptr pFileMgr, ReadWriteLock::Ptr pRdWrtLock)
 	: mpFileMgr{ pFileMgr }
 	, mpRdWrtLock {	pRdWrtLock}
@@ -36,6 +38,8 @@ void Protocol::broadcastMessage(const std::string& pMsg) {
 		ss << strMsg << "/" << mSender << "/" << mMsgToWrite;
 		strMsg = ss.str();
 	}
+
+	mLogger << MODULE_NAME << "Broadcasting " << strMsg << " to all peers" << std::endl;
 	for (const auto& [host, port] : mpCfgMgr->getPeers()) {
 		mpNetMgrSync->sendPacket(host, port, strMsg);
 	}
@@ -44,6 +48,7 @@ void Protocol::broadcastMessage(const std::string& pMsg) {
 void Protocol::onNetPacket(const std::string& pHost, unsigned int pPort, const std::string& pPkt) {
 	StateMachine* pNewState = nullptr;
 
+	mLogger << MODULE_NAME << "Got packet " << pPkt << std::endl;
 	//	For Server
 	if (pPkt.find(POSITIVE_ACK) == 0 && ++mPositiveAcks == mpCfgMgr->getPeers().size())
 		pNewState = mpCurState->onAllAck();
@@ -66,8 +71,10 @@ void Protocol::onNetPacket(const std::string& pHost, unsigned int pPort, const s
 	else if (pPkt.find(UNSUCCESSFUL) == 0)
 		pNewState = mpCurState->onUnsuccessful(pHost, pPort);
 
+
 	if (pNewState) {
 		if (pNewState->getStateEnum() == States::Idle) clearAll();
+		mLogger << MODULE_NAME << mpCurState->getStateName() << " --> to --> " << pNewState->getStateName() << std::endl;
 		mpCurState = pNewState;
 	}
 }
@@ -93,11 +100,14 @@ void Protocol::sendWriteResponse(const std::string& pMsg) {
 	if (pMsg.find("WROTE") == 0)
 		strMsg = pMsg + std::string(" ") + std::to_string(mLastMsgNo);
 	sendMessage(mHostToRespondWrite, mPortToRespondWrite, strMsg);
+
+	mLogger << MODULE_NAME << "Sending write response " << strMsg << std::endl;
 	mHostToRespondWrite.clear();
 	mPortToRespondWrite = 0;
 }
 
 void Protocol::onTimeout(size_t pTimeoutId) {
+	mLogger << MODULE_NAME << "Got timeout for Timer Id " << pTimeoutId << std::endl;
 	StateMachine* pNewState = nullptr;
 	if (pTimeoutId != mActiveTimeoutId) return;
 

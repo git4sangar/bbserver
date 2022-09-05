@@ -50,7 +50,7 @@ namespace util {
 		return *this;
 	}
 
-	Logger& Logger::operator <<(const std::string strMsg) {
+	Logger& Logger::operator <<(const std::string& strMsg) {
 		writeLock.lock();
 		if (mbTime) { stampTime(); mbTime = false; }
 		mLogFile << strMsg; mLogFile.flush();
@@ -59,7 +59,7 @@ namespace util {
 		return *this;
 	}
 
-	Logger& Logger::operator <<(int iVal) {
+	Logger& Logger::operator <<(const size_t iVal) {
 		writeLock.lock();
 		if (mbTime) { stampTime(); mbTime = false; }
 		mLogFile << iVal; mLogFile.flush();

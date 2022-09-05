@@ -31,7 +31,7 @@ public:
 	virtual StateMachine* onUnsuccessful(const std::string& pHost, unsigned int pPort) { return nullptr; }	// Server to Peer
 
 	virtual States getStateEnum() = 0;
-	static std::string getStateName(States pState);
+	virtual std::string getStateName() = 0;
 
 protected:
 	std::shared_ptr<Protocol> mpProtocol;
@@ -46,6 +46,7 @@ public:
 	StateMachine* onWriteRequest();
 	StateMachine* onPrecommit(const std::string& pHost, unsigned int pPort);
 	States getStateEnum() { return States::Idle; }
+	std::string getStateName() { return "IdleState"; }
 
 	virtual ~IdleState() {}
 	static StateMachine* getInstance(std::shared_ptr<Protocol> pProtocol) {
@@ -64,6 +65,7 @@ public:
 	StateMachine* onNegativeAckOrTimeout();
 	StateMachine* onAllAck();
 	States getStateEnum() { return States::ServerPrecommit; }
+	std::string getStateName() { return "ServerPrecommit"; }
 
 	virtual ~ServerPrecommitState() {}
 
@@ -85,6 +87,7 @@ public:
 	StateMachine* onUnsuccess() { return onFailure(); }
 	StateMachine* onSuccess();
 	States getStateEnum() { return States::ServerCommit; }
+	std::string getStateName() { return "ServerCommitState"; }
 
 	static StateMachine* getInstance(std::shared_ptr<Protocol> pProtocol) {
 		if (!pThis) pThis = new ServerCommitState(pProtocol);
@@ -109,6 +112,7 @@ public:
 	StateMachine* onAbort(const std::string& pHost, unsigned int pPort);
 
 	States getStateEnum() { return States::ClientPrecommit; }
+	std::string getStateName() { return "ClientPrecommitState"; }
 
 	virtual ~ClientPrecommitState() {}
 
@@ -129,6 +133,7 @@ public:
 	StateMachine* onSuccessful(const std::string& pHost, unsigned int pPort);
 	StateMachine* onUnsuccessful(const std::string& pHost, unsigned int pPort);
 	States getStateEnum() { return States::ClientCommit; }
+	std::string getStateName() { return "ClientCommitState"; }
 
 	virtual ~ClientCommitState() {}
 

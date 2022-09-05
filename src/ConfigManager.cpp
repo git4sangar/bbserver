@@ -4,6 +4,8 @@
 #include <vector>
 #include "ConfigManager.h"
 
+#define MODULE_NAME "ConfigManager : "
+
 namespace util {
     ConfigManager* ConfigManager::pThis = nullptr;
 
@@ -13,6 +15,7 @@ namespace util {
         , mSyncPort { 10000 }
         , m_d { true }
         , m_D { false }
+        , mLogger { Logger::getInstance() }
     {}
 
     ConfigManager* ConfigManager::getInstance() {
@@ -24,11 +27,13 @@ namespace util {
     }
 
     void ConfigManager::parseConfig(const std::string& pCfgFileName) {
+        mLogger << MODULE_NAME << "parsing config file " << pCfgFileName << std::endl;
         if (pCfgFileName.empty()) throw std::runtime_error("ConfigManager: Invalid cfg file");
         std::ifstream cfgFile(pCfgFileName);
         if (!cfgFile) throw std::runtime_error("ConfigManager: Error reading cfg file");
 
         std::string strLine, strKey, strVal;
+        mLogger << MODULE_NAME << "started parsing config file " << pCfgFileName << std::endl;
         while (std::getline(cfgFile, strLine)) {
             auto nPos = strLine.find_first_of("=");
             if (std::string::npos != nPos && (nPos+1) < strLine.length()) {
@@ -45,6 +50,19 @@ namespace util {
             }
             strLine.clear();
         }
+
+        //  Logging {{{
+        mLogger << MODULE_NAME << "BBPORT: " << mBBPort << ", SYNCPORT: " << mSyncPort
+            << "\nBBFILE: " << mBBFile << "\nDAEMON" << m_d << ", DEBUG: " << m_D << std::endl;
+        mLogger << MODULE_NAME << "Peers : " << std::endl;
+        std::string strPrefix = "";
+        for (const auto& [host, port] : mPeers) {
+            mLogger << strPrefix << host << " : " << port;
+            strPrefix = ", ";
+        }
+        mLogger << std::endl;
+        //  Logging }}}
+
         cfgFile.close();
     }
 

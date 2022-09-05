@@ -8,6 +8,8 @@
 
 #include "FileManager.h"
 
+#define MODULE_NAME "FileManager : "
+
 namespace util {
 	FileManager::FileManager()
 		: mpCfgMgr{ ConfigManager::getInstance() }
@@ -29,11 +31,17 @@ namespace util {
 		std::string strLine;
 		size_t ulLineStart = 0;
 		mBBFile.seekg(0, std::ios::beg);
+
+		unsigned int uiNoOfLines = 0;
+		mLogger << MODULE_NAME << "Initializing" << std::endl;
 		while (getLine(mBBFile, strLine, ulLineStart)) {
 			if (strLine.empty()) continue;
 
 			auto nPos = strLine.find_first_of("/");
-			if (nPos == std::string::npos) throw std::runtime_error("FileManager: Corrupted BBFile");
+			if (nPos == std::string::npos) {
+				mLogger << MODULE_NAME << "File corrupted, throwing exception" << std::endl;
+				throw std::runtime_error("FileManager: Corrupted BBFile");
+			}
 
 			auto strMsgNo = strLine.substr(0, nPos);
 			auto ulMsgNo = std::stoul(strMsgNo);
@@ -44,7 +52,9 @@ namespace util {
 			auto posAndLen = std::make_pair(ulLineStart, ulLen);
 
 			mFileIndices.insert({ulMsgNo, posAndLen});
+			uiNoOfLines++;
 		}
+		mLogger << MODULE_NAME << "Parsed " << uiNoOfLines << " lines" << std::endl;
 	}
 
 	std::string FileManager::readFromFile(size_t pMsgNo) {
@@ -63,6 +73,10 @@ namespace util {
 			pBuffer[posAndLen.second] = '\0';
 			strLine = pBuffer;
 			delete[] pBuffer;
+
+			mLogger << MODULE_NAME << "Read line " << strLine << std::endl;
+		} else {
+			mLogger << MODULE_NAME << "Read failed as Msg no " << pMsgNo << " does not exist" << std::endl;
 		}
 		
 		return strLine;
@@ -81,12 +95,13 @@ namespace util {
 		auto posAndLen = std::make_pair(ulLineStart, ss.str().length());
 		mFileIndices.insert({ mLastMsgNo, posAndLen });
 
+		mLogger << MODULE_NAME << "Wrote msg no " << mLastMsgNo << " with content " << ss.str() << std::endl;
 		return mLastMsgNo;
 	}
 
 	bool FileManager::undoLastWritten() {
 		if (mLastWrittenLen < MIN_MSG_LENGTH) return false;
-
+		mLogger << MODULE_NAME << "Undo last written msg" << std::endl;
 		writeDummyAtPos(mLastWrittenPos, mLastWrittenLen);
 		mLastMsgNo--;
 
@@ -101,12 +116,15 @@ namespace util {
 		std::pair<size_t,size_t> posAndLen = mFileIndices.at(pMsgNo);
 
 		if (ss.str().length() == posAndLen.second) {
+			mLogger << MODULE_NAME << "Replace : Exising and New Line are equal in length" << std::endl;
 			writeAtPos(posAndLen.first, std::ios::beg, ss.str());
 		} else if (ss.str().length() < posAndLen.second) {
+			mLogger << MODULE_NAME << "Replace : New Line < Existing Line" << std::endl;
 			std::string strPad(posAndLen.second - ss.str().length(), ' ');
 			ss.str("");  ss << pMsgNo << "/" << pSender << "/" << pMsg << strPad << std::endl;
 			writeAtPos(posAndLen.first, std::ios::beg, ss.str());
 		} else {
+			mLogger << MODULE_NAME << "Replace : Existing Line < New Line" << std::endl;
 			writeDummyAtPos(posAndLen.first, posAndLen.second);
 			size_t ulLineStart = moveToEOF();
 			writeAtPos(ulLineStart, std::ios::beg, ss.str());

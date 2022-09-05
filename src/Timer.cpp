@@ -5,6 +5,8 @@
 #include <vector>
 #include "Timer.h"
 
+#define MODULE_NAME		"Timer : "
+
 namespace util {
 	Timer* Timer::pThis = nullptr;
 
@@ -20,6 +22,7 @@ namespace util {
 		mTimerElements.push_back(pTimerElement);
 		mQueueLock.unlock();
 
+		mLogger << MODULE_NAME << "Pushed to timer with id " << pTimerElement->mTimerId << std::endl;
 		return pTimerElement->mTimerId;
 	}
 
@@ -31,6 +34,7 @@ namespace util {
 			if (pElement->mTimerId == pTimerId) {
 				bFlag = true;
 				pElementItr = mTimerElements.erase(pElementItr);
+				mLogger << MODULE_NAME << "Removed from timer with id " << pElement->mTimerId << std::endl;
 				break;
 			}
 			else pElementItr++;
@@ -59,6 +63,7 @@ namespace util {
 
 			for (const auto& pElement : toCallList) {
 				//	Submit the following to threadpool
+				mLogger << MODULE_NAME << "Invoking timer function with id " << pElement->mTimerId << std::endl;
 				pElement->mListener->onTimeout(pElement->mTimerId);
 			}
 			std::this_thread::sleep_for(std::chrono::seconds(1));

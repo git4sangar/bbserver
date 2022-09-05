@@ -3,6 +3,8 @@
 #include <iostream>
 #include <map>
 
+#include "FileLogger.h"
+
 namespace util {
 	class ConfigManager
 	{
@@ -29,6 +31,7 @@ namespace util {
 		std::string mBBFile;
 		bool m_d, m_D;
 		std::map<std::string, unsigned int> mPeers;
+		Logger& mLogger;
 
 		static ConfigManager* pThis;
 	};

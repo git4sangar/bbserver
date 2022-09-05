@@ -2,6 +2,7 @@
 #include <iostream>
 #include <regex>
 #include <sstream>
+#include <thread>
 
 #include "Constants.h"
 #include "ClientManager.h"
@@ -81,6 +82,7 @@ void ClientManager::onNetPacket(const std::string& pHost, unsigned int pPort, co
 	if (pPkt.find(WRITE) == 0) strResp = handleWriteCmd(pHost, pPort, pPkt);
 
 	if (!strResp.empty()) mpNetMagr->sendPacket(pHost, pPort, strResp);
+	std::cout << "Response on client operation: " << strResp << std::endl;
 }
 
 void ClientManager::onTimeout(size_t pTimeoutId) { mLogger << MODULE_NAME << "Got timeout for Timer Id " << pTimeoutId << std::endl; }

@@ -1,4 +1,6 @@
 //sgn
+#include <unistd.h>
+
 #include "NetworkManager.h"
 
 namespace util {

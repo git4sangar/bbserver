@@ -4,6 +4,8 @@
 #include <iostream>
 #include <stdio.h>
 #include <time.h>
+#include <sys/time.h>
+
 #include "Constants.h"
 #include "FileLogger.h"
 
@@ -31,7 +33,7 @@ namespace util {
 		unsigned long msecs = st.tv_usec / 1000;
 		unsigned long usecs = st.tv_usec % 1000;
 		std::cout << secs << ":" << msecs << ":" << usecs << ": ";
-		ss_log << secs << ":" << msecs << ":" << usecs << ": ";
+		//ss_log << secs << ":" << msecs << ":" << usecs << ": ";
 	}
 #else
 	void Logger::stampTime() {

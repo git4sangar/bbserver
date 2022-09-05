@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <memory>
+#include <thread>
 
 #include "Constants.h"
 #include "FileManager.h"

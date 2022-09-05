@@ -53,7 +53,7 @@ namespace util {
 
         //  Logging {{{
         mLogger << MODULE_NAME << "BBPORT: " << mBBPort << ", SYNCPORT: " << mSyncPort
-            << "\nBBFILE: " << mBBFile << "\nDAEMON" << m_d << ", DEBUG: " << m_D << std::endl;
+            << "\nBBFILE: " << mBBFile << "\nDAEMON: " << m_d << ", DEBUG: " << m_D << std::endl;
         mLogger << MODULE_NAME << "Peers : " << std::endl;
         std::string strPrefix = "";
         for (const auto& [host, port] : mPeers) {

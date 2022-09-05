@@ -6,15 +6,17 @@ set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
 add_executable(BBServer
-SGNServer_01.cpp
-ClientManager.cpp
-ConfigManager.cpp
-Constants.cpp
-FileLogger.cpp
-FileManager.cpp
-NetworkManager.cpp
-Protocol.cpp
-StateMachine.cpp
-Timer.cpp)
+src/SGNServer_01.cpp
+src/ClientManager.cpp
+src/ConfigManager.cpp
+src/Constants.cpp
+src/FileLogger.cpp
+src/FileManager.cpp
+src/NetworkManager.cpp
+src/Protocol.cpp
+src/StateMachine.cpp
+src/Timer.cpp)
+
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/include")
 
 target_link_libraries(BBServer -lpthread) 

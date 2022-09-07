@@ -21,12 +21,12 @@ namespace util {
     ConfigManager* ConfigManager::getInstance() {
         if (pThis == nullptr) {
             pThis = new ConfigManager();
-            pThis->parseConfig("bbserv.conf");
+            pThis->parseCfgFile("bbserv.conf");
         }
         return pThis;
     }
 
-    void ConfigManager::parseConfig(const std::string& pCfgFileName) {
+    void ConfigManager::parseCfgFile(const std::string& pCfgFileName) {
         mLogger << MODULE_NAME << "parsing config file " << pCfgFileName << std::endl;
         if (pCfgFileName.empty()) throw std::runtime_error("ConfigManager: Invalid cfg file");
         std::ifstream cfgFile(pCfgFileName);

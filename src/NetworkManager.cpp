@@ -9,22 +9,22 @@
 namespace util {
 
 void NetworkManager::sendPacket(std::string pHost, unsigned int pPort, std::string strMsg) {
-    mLogger << MODULE_NAME << "Sending \"" << strMsg << "\" to " << pHost << ":" << pPort << std::endl;
-    int sockfd = 0;
-    struct hostent *he;
+   mLogger << MODULE_NAME << "Sending \"" << strMsg << "\" to " << pHost << ":" << pPort << std::endl;
+   int sockfd = 0;
+   struct hostent *he;
 
-    struct sockaddr_in their_addr;
-    memset(&their_addr, 0, sizeof(their_addr));
+   struct sockaddr_in their_addr;
+   memset(&their_addr, 0, sizeof(their_addr));
 
-    sockfd = socket(AF_INET, SOCK_DGRAM, 0);
+   sockfd = socket(AF_INET, SOCK_DGRAM, 0);
 
-    he = gethostbyname(pHost.c_str());
-    their_addr.sin_family = AF_INET;
-    their_addr.sin_port = htons(pPort);
-    their_addr.sin_addr = *((struct in_addr *)he->h_addr);
+   he = gethostbyname(pHost.c_str());
+   their_addr.sin_family = AF_INET;
+   their_addr.sin_port = htons(pPort);
+   their_addr.sin_addr = *((struct in_addr *)he->h_addr);
 
-    sendto(sockfd, strMsg.c_str(), strMsg.length(), 0, (struct sockaddr *)&their_addr, sizeof(struct sockaddr));
-    close(sockfd);
+   sendto(sockfd, strMsg.c_str(), strMsg.length(), 0, (struct sockaddr *)&their_addr, sizeof(struct sockaddr));
+   close(sockfd);
 }
 
 void NetworkManager::sendPacket(const struct sockaddr* pClientaddr, const std::string strMsg) {

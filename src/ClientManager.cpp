@@ -10,6 +10,7 @@
 #define MODULE_NAME "ClientManager : "
 
 std::string ClientManager::handleUserCmd(const std::string& pHost, const std::string pPkt) {
+	mLogger << MODULE_NAME << "handleUserCmd {" << std::endl;
 	std::stringstream ss;
 
 	if (pPkt.find_first_not_of(ALPHA_CAPS + ALPHA_SMALL + NUMERIC + "\t ") != std::string::npos) {
@@ -35,6 +36,7 @@ std::string ClientManager::handleUserCmd(const std::string& pHost, const std::st
 }
 
 std::string ClientManager::handleReadCmd(const std::string& pPkt) {
+	mLogger << MODULE_NAME << "handleReadCmd {" << std::endl;
 	if (pPkt.length() < READ.length())
 		return "ERROR READ Invalid message number";
 
@@ -61,28 +63,31 @@ std::string ClientManager::handleReadCmd(const std::string& pPkt) {
 	return std::string("MESSAGE ") + strMsg;
 }
 
-std::string ClientManager::handleWriteCmd(const std::string& pHost, unsigned int pPort, const std::string& pPkt) {
+std::string ClientManager::handleWriteCmd(const std::string& pHost, const struct sockaddr *pClientAddr, const std::string& pPkt) {
+	mLogger << MODULE_NAME << "handleWriteCmd {" << std::endl;
 	std::string strSender = "nobody";
 	if (mHost2UserMap.count(pHost) > 0) strSender = mHost2UserMap[pHost];
 
-	bool isOk = mpProtocol->onWriteRequest(pHost, pPort, strSender, pPkt);
-	mLogger << MODULE_NAME << "Write req triggered with return val " << isOk << " and msg " << pPkt << std::endl;
+	bool isOk = mpProtocol->onWriteRequest(pClientAddr, strSender, pPkt);
+	mLogger << MODULE_NAME << "Write req triggered : " << isOk << " (0-> failed, 1-> success) and msg " << pPkt << std::endl;
 	if (isOk)
 		return std::string();
 
 	return "ERROR WRITE another write in progress";
 }
 
-void ClientManager::onNetPacket(const std::string& pHost, unsigned int pPort, const std::string& pPkt) {
+void ClientManager::onNetPacket(const struct sockaddr *pClientAddr, const std::string& pPkt) {
 	std::string strResp;
+	const struct sockaddr_in* pClient = (const struct sockaddr_in*)pClientAddr;
+	std::string pHost = std::string(inet_ntoa(pClient->sin_addr));
 
 	mLogger << MODULE_NAME << "Got packet " << pPkt << std::endl;
 	if (pPkt.find(USER) == 0) strResp = handleUserCmd(pHost, pPkt);
 	if (pPkt.find(READ) == 0) strResp = handleReadCmd(pPkt);
-	if (pPkt.find(WRITE) == 0) strResp = handleWriteCmd(pHost, pPort, pPkt);
+	if (pPkt.find(WRITE) == 0) strResp = handleWriteCmd(pHost, pClientAddr, pPkt);
 
-	if (!strResp.empty()) mpNetMagr->sendPacket(pHost, pPort, strResp);
-	std::cout << "Response on client operation: " << strResp << std::endl;
+	if (!strResp.empty()) mpNetMagr->sendPacket(pClientAddr, strResp);
+	mLogger << MODULE_NAME << "onNetPacket Response : " << strResp << std::endl;
 }
 
 void ClientManager::onTimeout(size_t pTimeoutId) { mLogger << MODULE_NAME << "Got timeout for Timer Id " << pTimeoutId << std::endl; }

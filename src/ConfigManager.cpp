@@ -54,13 +54,13 @@ namespace util {
         //  Logging {{{
         mLogger << MODULE_NAME << "BBPORT: " << mBBPort << ", SYNCPORT: " << mSyncPort
             << "\nBBFILE: " << mBBFile << "\nDAEMON: " << m_d << ", DEBUG: " << m_D << std::endl;
-        mLogger << MODULE_NAME << "Peers : " << std::endl;
+        mLogger << MODULE_NAME << "Peers : ";
         std::string strPrefix = "";
         for (const auto& [host, port] : mPeers) {
-            mLogger << strPrefix << host << " : " << port;
+            mLogger << strPrefix << host << ":" << port;
             strPrefix = ", ";
         }
-        mLogger << std::endl;
+        mLogger << std::endl << std::endl;
         //  Logging }}}
 
         cfgFile.close();

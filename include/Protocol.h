@@ -27,19 +27,18 @@ public:
 
 	void addToTimer() {
 		mActiveTimeoutId = mpTimer->pushToTimerQueue(shared_from_this(), PRECOMMIT_TIMEOUT_SECS);
+		mLogger << "Protocol : Added to Timer with id " << mActiveTimeoutId << std::endl;
 	}
 	void removeActiveTimer() {
 		mpTimer->removeFromTimerQueue(mActiveTimeoutId);
 		mActiveTimeoutId = 0;
 	}
 
-	bool onWriteRequest(const std::string& pHost, unsigned int pPort, const std::string& pSender, const std::string& pMsg);
-	void onNetPacket(const std::string& pHost, unsigned int pPort, const std::string& pPkt);
+	bool onWriteRequest(const struct sockaddr *pClientAddr, const std::string& pSender, const std::string& pMsg);
+	void onNetPacket(const struct sockaddr *pClientAddr, const std::string& pPkt);
 	void onTimeout(size_t pTimeoutId);
 
-	void sendMessage(std::string pHost, unsigned int pPort, const std::string& pMsg) {
-		mpNetMgrSync->sendPacket(pHost, pPort, pMsg);
-	}
+	void sendMessageToPeer(const struct sockaddr *pClientAddr, const std::string& pMsg);
 	void sendWriteResponse(const std::string& pMsg);
 
 	void grabReadLock() { mpRdWrtLock->read_lock(); }
@@ -69,8 +68,9 @@ private:
 	Timer* mpTimer;
 	StateMachine* mpCurState;
 
-	unsigned int mPositiveAcks, mSuccessCount, mPortToRespondWrite;
+	unsigned int mPositiveAcks, mSuccessCount;
 	size_t mActiveTimeoutId, mLastMsgNo;
-	std::string mMsgToWrite, mSender, mHostToRespondWrite;
+	std::string mMsgToWrite, mSender;
 	Logger& mLogger;
+	const struct sockaddr *mpSenderSockAddr;
 };

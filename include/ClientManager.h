@@ -35,13 +35,13 @@ public:
 	NetworkListener::Ptr getNetListenerPtr() { return shared_from_this(); }
 	void handleClientCmd(std::string strHost, std::string strPkt) {}
 
-	void onNetPacket(const std::string& pHost, unsigned int pPort, const std::string& pPkt);
+	void onNetPacket(const struct sockaddr *pClientAddr, const std::string& pPkt);
 	void onTimeout(size_t pTimeoutId);
 
 private:
 	std::string handleUserCmd(const std::string& pHost, const std::string pPkt);
 	std::string handleReadCmd(const std::string& pPkt);
-	std::string handleWriteCmd(const std::string& pHost, unsigned int pPort, const std::string& pPkt);
+	std::string handleWriteCmd(const std::string& pHost, const struct sockaddr *pClientAddr, const std::string& pPkt);
 	std::string myTrim(std::string str);
 
 	std::unordered_map<std::string, std::string> mHost2UserMap;

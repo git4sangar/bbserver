@@ -15,19 +15,20 @@ namespace util {
 		TimerElement::Ptr pTimerElement = std::make_shared<TimerElement>();
 
 		pTimerElement->mListener = pListener;
-		pTimerElement->mDuration = pDurationSecs;
+		pTimerElement->mDuration = pDurationSecs + 1;	//	increment 1 bcoz, we start decrementing immediately
 
 		mQueueLock.lock();
 		pTimerElement->mTimerId = ++mNextId;
 		mTimerElements.push_back(pTimerElement);
 		mQueueLock.unlock();
 
-		mLogger << MODULE_NAME << "Pushed to timer with id " << pTimerElement->mTimerId << std::endl;
+		mLogger << MODULE_NAME << "Pushed timer id " << pTimerElement->mTimerId << " for " << pDurationSecs << " secs" << std::endl;
 		return pTimerElement->mTimerId;
 	}
 
 	bool Timer::removeFromTimerQueue(size_t pTimerId) {
 		bool bFlag = false;
+
 		mQueueLock.lock();
 		for (auto pElementItr = mTimerElements.begin(); pElementItr != mTimerElements.end(); ) {
 			TimerElement::Ptr pElement = *pElementItr;

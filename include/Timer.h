@@ -53,6 +53,7 @@ namespace util {
 
 	private:
 		Timer() : mNextId{ 0 }, mLogger{ Logger::getInstance() } {}
+
 		std::list<TimerElement::Ptr> mTimerElements;
 		std::mutex mQueueLock;
 		std::condition_variable mCondVar;

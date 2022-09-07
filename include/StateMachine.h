@@ -24,11 +24,11 @@ public:
 	virtual StateMachine* onAllAck() { return nullptr; }
 	virtual StateMachine* onSuccess() { return nullptr; }	// Peer to Server
 	virtual StateMachine* onUnsuccess() { return nullptr; }	// Peer to Server
-	virtual StateMachine* onPrecommit(const std::string &pHost, unsigned int pPort) { return nullptr; }
-	virtual StateMachine* onCommit(const std::string& pHost, unsigned int pPort) { return nullptr; }
-	virtual StateMachine* onAbort(const std::string& pHost, unsigned int pPort) { return nullptr; }
-	virtual StateMachine* onSuccessful(const std::string& pHost, unsigned int pPort) { return nullptr; }	// Server to Peer
-	virtual StateMachine* onUnsuccessful(const std::string& pHost, unsigned int pPort) { return nullptr; }	// Server to Peer
+	virtual StateMachine* onPrecommit(const struct sockaddr *pClientAddr) { return nullptr; }
+	virtual StateMachine* onCommit(const struct sockaddr *pClientAddr) { return nullptr; }
+	virtual StateMachine* onAbort(const struct sockaddr *pClientAddr) { return nullptr; }
+	virtual StateMachine* onSuccessful(const struct sockaddr *pClientAddr) { return nullptr; }	// Server to Peer
+	virtual StateMachine* onUnsuccessful(const struct sockaddr *pClientAddr) { return nullptr; }	// Server to Peer
 
 	virtual States getStateEnum() = 0;
 	virtual std::string getStateName() = 0;
@@ -44,7 +44,7 @@ protected:
 class IdleState : public StateMachine, public std::enable_shared_from_this<IdleState> {
 public:
 	StateMachine* onWriteRequest();
-	StateMachine* onPrecommit(const std::string& pHost, unsigned int pPort);
+	StateMachine* onPrecommit(const struct sockaddr *pClientAddr);
 	States getStateEnum() { return States::Idle; }
 	std::string getStateName() { return "IdleState"; }
 
@@ -108,8 +108,8 @@ class ClientPrecommitState : public StateMachine, public std::enable_shared_from
 public:
 	typedef std::shared_ptr<ClientPrecommitState> Ptr;
 	StateMachine* onNegativeAckOrTimeout();
-	StateMachine* onCommit(const std::string& pHost, unsigned int pPort);
-	StateMachine* onAbort(const std::string& pHost, unsigned int pPort);
+	StateMachine* onCommit(const struct sockaddr *pClientAddr);
+	StateMachine* onAbort(const struct sockaddr *pClientAddr);
 
 	States getStateEnum() { return States::ClientPrecommit; }
 	std::string getStateName() { return "ClientPrecommitState"; }
@@ -130,8 +130,8 @@ class ClientCommitState : public StateMachine, public std::enable_shared_from_th
 public:
 	typedef std::shared_ptr<ClientCommitState> Ptr;
 	StateMachine* onNegativeAckOrTimeout();
-	StateMachine* onSuccessful(const std::string& pHost, unsigned int pPort);
-	StateMachine* onUnsuccessful(const std::string& pHost, unsigned int pPort);
+	StateMachine* onSuccessful(const struct sockaddr *pClientAddr);
+	StateMachine* onUnsuccessful(const struct sockaddr *pClientAddr);
 	States getStateEnum() { return States::ClientCommit; }
 	std::string getStateName() { return "ClientCommitState"; }
 

@@ -20,8 +20,8 @@ Protocol::Protocol(FileManager::Ptr pFileMgr, ReadWriteLock::Ptr pRdWrtLock)
 	, mLastMsgNo{0}
 	, mPositiveAcks{0}
 	, mSuccessCount{0}
-	, mPortToRespondWrite{0}
 	, mLogger{ Logger::getInstance() }
+	, mpSenderSockAddr{nullptr}
 {
 	mpCfgMgr = ConfigManager::getInstance();
 	mpTimer = Timer::getInstance();
@@ -46,7 +46,7 @@ void Protocol::broadcastMessage(const std::string& pMsg) {
 	}
 }
 
-void Protocol::onNetPacket(const std::string& pHost, unsigned int pPort, const std::string& pPkt) {
+void Protocol::onNetPacket(const struct sockaddr *pClientAddr, const std::string& pPkt) {
 	StateMachine* pNewState = nullptr;
 
 	mLogger << MODULE_NAME << "Got packet " << pPkt << std::endl;
@@ -60,36 +60,46 @@ void Protocol::onNetPacket(const std::string& pHost, unsigned int pPort, const s
 
 	//	For clients
 	if (pPkt.find(PRECOMMIT) == 0)
-		pNewState = mpCurState->onPrecommit(pHost, pPort);
+		pNewState = mpCurState->onPrecommit(pClientAddr);
 	else if (pPkt.find(ABORT) == 0)
-		pNewState = mpCurState->onAbort(pHost, pPort);
+		pNewState = mpCurState->onAbort(pClientAddr);
 	else if (pPkt.find(SUCCESSFUL) == 0)
-		pNewState = mpCurState->onSuccessful(pHost, pPort);
+		pNewState = mpCurState->onSuccessful(pClientAddr);
 	else if (pPkt.find(COMMIT) == 0) {
 		parsePacket(pPkt);
-		pNewState = mpCurState->onCommit(pHost, pPort);
+		pNewState = mpCurState->onCommit(pClientAddr);
 	}
 	else if (pPkt.find(UNSUCCESSFUL) == 0)
-		pNewState = mpCurState->onUnsuccessful(pHost, pPort);
-
+		pNewState = mpCurState->onUnsuccessful(pClientAddr);
 
 	if (pNewState) {
 		if (pNewState->getStateEnum() == States::Idle) clearAll();
-		mLogger << MODULE_NAME << mpCurState->getStateName() << " --> to --> " << pNewState->getStateName() << std::endl;
+		mLogger << MODULE_NAME << "--- " << mpCurState->getStateName() << " --> to --> " << pNewState->getStateName() << " ---" << std::endl;
 		mpCurState = pNewState;
+	} else { mLogger << MODULE_NAME << pPkt << " is not relevant for cur state : " << mpCurState->getStateName() << std::endl; }
+}
+
+void Protocol::sendMessageToPeer(const struct sockaddr *pClientAddr, const std::string& pMsg) {
+	const struct sockaddr_in *pClientAddrIn = (const struct sockaddr_in *)pClientAddr;
+	std::string strHost(inet_ntoa(pClientAddrIn->sin_addr));
+
+	const std::map<std::string, unsigned int>& peers = mpCfgMgr->getPeers();
+	if(peers.count(strHost) > 0) {
+		mpNetMgrSync->sendPacket(strHost, peers.at(strHost), pMsg);
 	}
 }
 
-bool Protocol::onWriteRequest(const std::string& pHost, unsigned int pPort, const std::string& pSender, const std::string& pMsg) {
+bool Protocol::onWriteRequest(const struct sockaddr *pClientAddr, const std::string& pSender, const std::string& pMsg) {
+	mLogger << MODULE_NAME << "OnWrite Request" << std::endl;
 	if (mpCurState->getStateEnum() != States::Idle)
 		return false;
 
 	StateMachine* pNewState = mpCurState->onWriteRequest();
 	if (pNewState) {
-		mHostToRespondWrite = pHost;
-		mPortToRespondWrite = pPort;
+		mpSenderSockAddr = pClientAddr;
 		mSender = pSender;
 		mMsgToWrite = pMsg;
+		mLogger << MODULE_NAME << "--- " << mpCurState->getStateName() << " --> to --> " << pNewState->getStateName() << " ---" << std::endl;
 		mpCurState = pNewState; 
 		return true;
 	}
@@ -100,11 +110,10 @@ void Protocol::sendWriteResponse(const std::string& pMsg) {
 	std::string strMsg = pMsg;
 	if (pMsg.find("WROTE") == 0)
 		strMsg = pMsg + std::string(" ") + std::to_string(mLastMsgNo);
-	sendMessage(mHostToRespondWrite, mPortToRespondWrite, strMsg);
+	mLogger << MODULE_NAME << "Sending write response " << std::endl;
 
-	mLogger << MODULE_NAME << "Sending write response " << strMsg << std::endl;
-	mHostToRespondWrite.clear();
-	mPortToRespondWrite = 0;
+	mpNetMgrSync->sendPacket(mpSenderSockAddr, pMsg);
+	mpSenderSockAddr = nullptr;
 }
 
 void Protocol::onTimeout(size_t pTimeoutId) {
@@ -115,7 +124,10 @@ void Protocol::onTimeout(size_t pTimeoutId) {
 	mPositiveAcks = 0;
 	mSuccessCount = 0;
 	pNewState = mpCurState->onNegativeAckOrTimeout();
-	if (pNewState) mpCurState = pNewState;
+	if (pNewState) {
+		mLogger << MODULE_NAME << "--- " << mpCurState->getStateName() << " --> to --> " << pNewState->getStateName() << " ---" << std::endl;
+		mpCurState = pNewState;
+	}
 }
 
 void Protocol::clearAll() {

@@ -7,6 +7,8 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <exception>
+#include <signal.h>
+#include <string.h>
 
 #include "Constants.h"
 #include "FileManager.h"
@@ -17,17 +19,26 @@
 using namespace util;
 
 void printHelp() {
-    std::cout << "-c name of the config file to be used" << std::endl
-              << "-b name of the bbfile" << std::endl
-              << "-T max no of threas in threadpool" << std::endl
-              << "-p port number to which user communicates" << std::endl
-              << "-s port number to which peers communicate" << std::endl
-              << "-f toggles \"server start steps\"" << std::endl
-              << "-d toggles debug output" << std::endl;
+    std::cout << "BBServer 1.0" << std::endl
+              << "Usage: BBServer [option] as follows" << std::endl
+              << "-c followed by name of the config file to be used" << std::endl
+              << "-b followed by name of the bbfile" << std::endl
+              << "-T followed by max no of threas in threadpool" << std::endl
+              << "-p followed by port number to which user communicates" << std::endl
+              << "-s followed by port number to which peers communicate" << std::endl
+              << "-f (no argument) toggles \"server start steps\"" << std::endl
+              << "-d (no argument) toggles debug output" << std::endl
+              << "Handles signals: SIGQUIT, SIGUP\nEg: kill -s SIGQUIT PID" << std::endl;
 }
+
+void sig_handler(int signum) { std::cout << "Inside Signal handler" << std::endl; }
 
 int main(int argc, char* argv[])
 {
+    signal(SIGINT,sig_handler);
+    if(argc == 2 && !strcmp(argv[1], "-h")) { printHelp(); return 0; }
+
+    std::cout << "My PID " << ::getpid() << std::endl;
     util::ConfigManager *pCfgMgr = nullptr;
     try { pCfgMgr = ConfigManager::getInstance(); }
     catch(std::exception &e) { std::cout << e.what() << std::endl; }
@@ -66,11 +77,7 @@ int main(int argc, char* argv[])
             case 'd':
                 bDebug = !bDebug;
                 pCfgMgr->setDebug(bDebug);
-                break;
-            default:
-            case 'h':
-                printHelp();
-                break;            
+                break;          
         }
     }
 

@@ -168,4 +168,11 @@ namespace util {
 		mBBFile.seekg(0, std::ios::end);
 		return mBBFile.tellg();
 	}
+
+	void FileManager::close() {
+		mLastMsgNo = mLastWrittenPos = mLastWrittenLen = 0;
+		mBBFile.close();
+		mFileIndices.clear();
+		mLogger << MODULE_NAME << "FileManager closed" << std::endl;
+	}
 } // namepsace util

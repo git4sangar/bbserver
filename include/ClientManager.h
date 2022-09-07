@@ -35,8 +35,9 @@ public:
 	NetworkListener::Ptr getNetListenerPtr() { return shared_from_this(); }
 	void handleClientCmd(std::string strHost, std::string strPkt) {}
 
-	void onNetPacket(const struct sockaddr *pClientAddr, const std::string& pPkt);
+	bool onNetPacket(const struct sockaddr *pClientAddr, const std::string& pPkt);
 	void onTimeout(size_t pTimeoutId);
+	void onSigHup();
 
 private:
 	std::string handleUserCmd(const std::string& pHost, const std::string pPkt);

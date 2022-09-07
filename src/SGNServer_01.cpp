@@ -18,6 +18,10 @@
 
 using namespace util;
 
+ReadWriteLock::Ptr pRdWrLock = nullptr;
+FileManager::Ptr pFileMgr = nullptr;
+ClientManager::Ptr pClientMgr = nullptr;
+
 void printHelp() {
     std::cout << "BBServer 1.0" << std::endl
               << "Usage: BBServer [option] as follows" << std::endl
@@ -31,11 +35,24 @@ void printHelp() {
               << "Handles signals: SIGQUIT, SIGUP\nEg: kill -s SIGQUIT PID" << std::endl;
 }
 
-void sig_handler(int signum) { std::cout << "Inside Signal handler" << std::endl; }
+void startApp() {
+    pRdWrLock = std::make_shared<ReadWriteLock>();    
+    pFileMgr = std::make_shared<FileManager>();
+    pFileMgr->init();
 
-int main(int argc, char* argv[])
-{
-    signal(SIGINT,sig_handler);
+    pClientMgr = std::make_shared<ClientManager>(pFileMgr, pRdWrLock);
+    pClientMgr->init();
+    sleep(1);   //  Wait a bit for all modules to initialize and get ready
+    Logger::getInstance().getInstance() << "--- Started BBServer Successfully ---" << std::endl << std::endl;
+}
+
+void sighupHandler(int signum) { pClientMgr->onSigHup(); startApp(); }
+void sigQuitHandler(int signum) { pClientMgr->onSigHup(); exit(0); }
+
+int main(int argc, char* argv[]) {
+    signal(SIGHUP,sighupHandler);
+    signal(SIGQUIT,sigQuitHandler);
+
     if(argc == 2 && !strcmp(argv[1], "-h")) { printHelp(); return 0; }
 
     std::cout << "My PID " << ::getpid() << std::endl;
@@ -81,15 +98,8 @@ int main(int argc, char* argv[])
         }
     }
 
-    ReadWriteLock::Ptr pRdWrLock = std::make_shared<ReadWriteLock>();    
-    FileManager::Ptr pFileMgr = std::make_shared<FileManager>();
-    pFileMgr->init();
+    startApp();
 
-    ClientManager::Ptr pClientMgr = std::make_shared<ClientManager>(pFileMgr, pRdWrLock);
-    pClientMgr->init();
-    sleep(1);   //  Wait a bit for all modules to initialize and get ready
-
-    Logger::getInstance().getInstance() << "--- Started BBServer Successfully ---" << std::endl << std::endl;
     while(1) sleep(60);
     return 0;
 }

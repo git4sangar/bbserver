@@ -62,6 +62,12 @@ void NetworkManager::receiveThread(unsigned int pPort) {
 
       recvd = recvfrom(sockfd, buf, BUFFSIZE, 0, (struct sockaddr *) pClientAddr, (socklen_t*)&clientlen);
       buf[recvd] = '\0';
+      if(std::string(buf) == "QUIT") {
+         close(sockfd);
+         mLogger << MODULE_NAME << "Quitting Recive Thread bound to port " << pPort << std::endl;
+         return;
+      }
+
       std::string strHost = std::string(inet_ntoa(pClientAddr->sin_addr));
       mLogger << MODULE_NAME << "Received \"" << buf << "\" from " << strHost << ":" << pClientAddr->sin_port << std::endl;
 

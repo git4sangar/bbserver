@@ -22,6 +22,7 @@ namespace util {
 		// this is the function signature of std::endl
 		typedef CoutType& (*StandardEndLine)(CoutType&);
 		Logger& operator << (StandardEndLine manip);
+		void closeLogger() { mLogFile.close(); Logger::pLogger = nullptr; }
 
 		static Logger& getInstance();
 

@@ -76,7 +76,7 @@ std::string ClientManager::handleWriteCmd(const std::string& pHost, const struct
 	return "ERROR WRITE another write in progress";
 }
 
-void ClientManager::onNetPacket(const struct sockaddr *pClientAddr, const std::string& pPkt) {
+bool ClientManager::onNetPacket(const struct sockaddr *pClientAddr, const std::string& pPkt) {
 	std::string strResp;
 	const struct sockaddr_in* pClient = (const struct sockaddr_in*)pClientAddr;
 	std::string pHost = std::string(inet_ntoa(pClient->sin_addr));
@@ -88,6 +88,7 @@ void ClientManager::onNetPacket(const struct sockaddr *pClientAddr, const std::s
 
 	if (!strResp.empty()) mpNetMagr->sendPacket(pClientAddr, strResp);
 	mLogger << MODULE_NAME << "onNetPacket Response : " << strResp << std::endl;
+	return true;
 }
 
 void ClientManager::onTimeout(size_t pTimeoutId) { mLogger << MODULE_NAME << "Got timeout for Timer Id " << pTimeoutId << std::endl; }
@@ -98,3 +99,13 @@ std::string ClientManager::myTrim(std::string str) {
 	return str;
 }
 
+void ClientManager::onSigHup() {
+	mLogger << MODULE_NAME << "on SigHup" << std::endl;
+	mpNetMagr->quitReceiveThread();
+	mpProtocol->forceQuit(); // this acquires write lock, so release it at last
+	mpFileMgr->close();
+	mpFileMgr = nullptr;
+	mHost2UserMap.clear();
+	mLogger.closeLogger();
+	mpRdWrLock->write_unlock();
+}

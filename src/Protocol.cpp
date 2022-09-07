@@ -46,7 +46,7 @@ void Protocol::broadcastMessage(const std::string& pMsg) {
 	}
 }
 
-void Protocol::onNetPacket(const struct sockaddr *pClientAddr, const std::string& pPkt) {
+bool Protocol::onNetPacket(const struct sockaddr *pClientAddr, const std::string& pPkt) {
 	StateMachine* pNewState = nullptr;
 
 	mLogger << MODULE_NAME << "Got packet " << pPkt << std::endl;
@@ -77,6 +77,8 @@ void Protocol::onNetPacket(const struct sockaddr *pClientAddr, const std::string
 		mLogger << MODULE_NAME << "--- " << mpCurState->getStateName() << " --> to --> " << pNewState->getStateName() << " ---" << std::endl;
 		mpCurState = pNewState;
 	} else { mLogger << MODULE_NAME << pPkt << " is not relevant for cur state : " << mpCurState->getStateName() << std::endl; }
+
+	return true;
 }
 
 void Protocol::sendMessageToPeer(const struct sockaddr *pClientAddr, const std::string& pMsg) {
@@ -150,4 +152,11 @@ bool Protocol::parsePacket(const std::string& pPkt) {
 		return true;
 	}
 	return false;
+}
+
+void Protocol::forceQuit() {
+	mpNetMgrSync->quitReceiveThread();
+	mpTimer->elapseAllTimersAndQuit();
+	mpTimer->waitForTimerQuit();
+	grabWriteLock();	// no more read or write
 }

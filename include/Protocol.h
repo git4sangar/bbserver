@@ -36,7 +36,7 @@ public:
 	}
 
 	bool onWriteRequest(const struct sockaddr *pClientAddr, const std::string& pSender, const std::string& pMsg);
-	void onNetPacket(const struct sockaddr *pClientAddr, const std::string& pPkt);
+	bool onNetPacket(const struct sockaddr *pClientAddr, const std::string& pPkt);
 	void onTimeout(size_t pTimeoutId);
 
 	void sendMessageToPeer(const struct sockaddr *pClientAddr, const std::string& pMsg);
@@ -46,6 +46,7 @@ public:
 	void grabWriteLock() { mpRdWrtLock->write_lock(); }
 	void releaseReadLock() { mpRdWrtLock->read_unlock(); }
 	void releaseWriteLock() { mpRdWrtLock->write_unlock(); }
+	void forceQuit();
 
 	bool writeMsg() {
 		mLastMsgNo = mpFileMgr->writeToFile(mSender, mMsgToWrite);

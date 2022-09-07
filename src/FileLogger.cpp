@@ -9,11 +9,16 @@
 #include "Constants.h"
 #include "FileLogger.h"
 
+#define MODULE_NAME "Logger : "
+
 namespace util {
 	Logger* Logger::pLogger = NULL;
 
 	Logger& Logger::getInstance() {
-		if (NULL == pLogger) pLogger = new Logger();
+		if (NULL == pLogger) {
+			pLogger = new Logger();
+			*pLogger << MODULE_NAME << "Logger Started" << std::endl;
+		}
 		return *pLogger;
 	}
 
@@ -23,7 +28,7 @@ namespace util {
 
 #if __linux__
 	void Logger::stampTime() {
-		struct timeval st;
+		/*struct timeval st;
 		gettimeofday(&st, NULL);
 
 		//	why do i need secs since epoch? get secs from now
@@ -32,8 +37,7 @@ namespace util {
 		secs = secs % 36000;	// reset secs every 10 hours
 		unsigned long msecs = st.tv_usec / 1000;
 		unsigned long usecs = st.tv_usec % 1000;
-		std::cout << secs << ":" << msecs << ":" << usecs << ": ";
-		//ss_log << secs << ":" << msecs << ":" << usecs << ": ";
+		std::cout << secs << ":" << msecs << ":" << usecs << ": ";*/
 	}
 #else
 	void Logger::stampTime() {

@@ -44,8 +44,30 @@ namespace util {
 		return bFlag;
 	}
 
+	void Timer::elapseAllTimersAndQuit() {
+		mQueueLock.lock();
+		size_t maxDuration = 0;
+
+		//	Find the timer with max duration
+		for (auto pElementItr = mTimerElements.begin(); pElementItr != mTimerElements.end(); pElementItr++) {
+			TimerElement::Ptr pElement = *pElementItr;
+			if(pElement->mDuration > maxDuration) maxDuration = pElement->mDuration;
+		}
+
+		//	Push a dummy event for quit with max duration so that it'll be last
+		TimerElement::Ptr pTimerElement = std::make_shared<TimerElement>();
+		pTimerElement->mDuration = maxDuration+1;
+		pTimerElement->mbQuit = true;
+		mTimerElements.push_back(pTimerElement);
+
+		//	Lock the quitLock and unlock it from run thread after quitting
+		mQuitLock.lock();
+		mQueueLock.unlock();
+	}
+
 	void Timer::run() {
 		std::vector<TimerElement::Ptr> toCallList;
+		bool isQuit = false;
 
 		while (1) {
 			toCallList.clear();
@@ -54,6 +76,7 @@ namespace util {
 			for (auto pElementItr = mTimerElements.begin(); pElementItr != mTimerElements.end(); ) {
 				TimerElement::Ptr pElement = *pElementItr;
 				pElement->mDuration--;
+				isQuit = isQuit | pElement->mbQuit;
 				if (pElement->mDuration == 0) {
 					pElementItr = mTimerElements.erase(pElementItr);
 					toCallList.push_back(pElement);
@@ -65,7 +88,14 @@ namespace util {
 			for (const auto& pElement : toCallList) {
 				//	Submit the following to threadpool
 				mLogger << MODULE_NAME << "Invoking timer function with id " << pElement->mTimerId << std::endl;
-				pElement->mListener->onTimeout(pElement->mTimerId);
+				if(pElement->mListener) pElement->mListener->onTimeout(pElement->mTimerId);
+			}
+
+			if(isQuit) {
+				mLogger << MODULE_NAME << "Quitting Timer thread" << std::endl;
+				pThis = nullptr;
+				mQuitLock.unlock();
+				return;
 			}
 			std::this_thread::sleep_for(std::chrono::seconds(1));
 		}

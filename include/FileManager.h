@@ -20,12 +20,13 @@ namespace util {
 
 		FileManager();
 		void init();
-		~FileManager() { mBBFile.close(); }
+		~FileManager() { mLogger << "FileManager : Closing BBFile" << std::endl; mBBFile.close(); }
 
 		std::string readFromFile(size_t pMsgNo);
 		size_t writeToFile(std::string pSender, std::string pMsg);
 		bool replaceMessage(size_t pMsgNo, std::string pSender, std::string pMsg);
 		bool undoLastWritten();
+		void close();
 
 	private:
 		bool getLine(std::fstream& pStream, std::string& pStrLine, size_t& pPos);

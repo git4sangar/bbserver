@@ -3,15 +3,18 @@
 
 #include <iostream>
 #include <memory>
-#include "FileLogger.h"
 
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <thread>
+#include <map>
 
-#define BUFFSIZE (10*1024)
+#include "Timer.h"
+
+#define BUFFSIZE 			(10*1024)
+#define GARBAGE_TIMEOUT_SEC (60)
 
 namespace util {
 	class NetworkListener {
@@ -22,7 +25,7 @@ namespace util {
 		virtual void onNetPacket(const struct sockaddr *pClientAddr, const std::string& pPkt) = 0;
 	};
 
-	class NetworkManager
+	class NetworkManager : public TimerListener, public std::enable_shared_from_this<NetworkManager>
 	{
 	public:
 		typedef std::shared_ptr<NetworkManager> Ptr;
@@ -31,6 +34,7 @@ namespace util {
 			: mpListener{ pListener }
 			, mPort {pPort}
 			, mLogger{ Logger::getInstance() }
+			, mpTimer{ Timer::getInstance() }
 		{ std::thread tRecv(&NetworkManager::receiveThread, this, pPort); tRecv.detach();}
 		~NetworkManager() {}
 
@@ -38,10 +42,15 @@ namespace util {
 		void sendPacket(const struct sockaddr* pClientaddr, std::string strMsg);
 		void receiveThread(unsigned int pPort);
 
+		void onTimeout(size_t pTimeoutId) { delete mGarbage[pTimeoutId]; mGarbage.erase(pTimeoutId); } 	
+		TimerListener::Ptr getTimerListener() { return shared_from_this(); }
+
 	private:
 		NetworkListener::Ptr mpListener;
 		unsigned int mPort;
 		Logger& mLogger;
+		Timer* mpTimer;
+		std::map<size_t, struct sockaddr_in *> mGarbage;
 	};
 
 } // namespace util

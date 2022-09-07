@@ -29,6 +29,7 @@ public:
 		mActiveTimeoutId = mpTimer->pushToTimerQueue(shared_from_this(), PRECOMMIT_TIMEOUT_SECS);
 		mLogger << "Protocol : Added to Timer with id " << mActiveTimeoutId << std::endl;
 	}
+	
 	void removeActiveTimer() {
 		mpTimer->removeFromTimerQueue(mActiveTimeoutId);
 		mActiveTimeoutId = 0;

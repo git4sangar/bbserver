@@ -42,9 +42,8 @@ void NetworkManager::receiveThread(unsigned int pPort) {
    int optval = 1;
    setsockopt(sockfd, SOL_SOCKET, SO_REUSEADDR, (const void *)&optval , sizeof(int));
 
-   struct sockaddr_in serveraddr, clientaddr;
+   struct sockaddr_in serveraddr;
    memset(&serveraddr, 0, sizeof(serveraddr));
-   memset(&clientaddr, 0, sizeof(clientaddr));
 
    serveraddr.sin_family = AF_INET;
    serveraddr.sin_addr.s_addr = htonl(INADDR_ANY);
@@ -53,17 +52,23 @@ void NetworkManager::receiveThread(unsigned int pPort) {
    bind(sockfd, (struct sockaddr *)&serveraddr, sizeof(serveraddr));
    mLogger << MODULE_NAME << "Bound socket to port " << pPort << std::endl;
 
-   struct sockaddr_in ;
-   int clientlen = sizeof(clientaddr), recvd;
+   int clientlen = sizeof(struct sockaddr_in), recvd;
    char buf[BUFFSIZE];
 
    while(1) {
-      bzero(buf, BUFFSIZE);
-      recvd = recvfrom(sockfd, buf, BUFFSIZE, 0, (struct sockaddr *) &clientaddr, (socklen_t*)&clientlen);
+      struct sockaddr_in *pClientAddr = new struct sockaddr_in;
+      memset(pClientAddr, 0, sizeof(struct sockaddr_in));
+      memset(buf, 0, BUFFSIZE);
+
+      recvd = recvfrom(sockfd, buf, BUFFSIZE, 0, (struct sockaddr *) pClientAddr, (socklen_t*)&clientlen);
       buf[recvd] = '\0';
-      std::string strHost = std::string(inet_ntoa(clientaddr.sin_addr));
-      mLogger << MODULE_NAME << "Received " << buf << " from " << strHost << ":" << clientaddr.sin_port << std::endl;
-      mpListener->onNetPacket((struct sockaddr *)&clientaddr, std::string(buf));
+      std::string strHost = std::string(inet_ntoa(pClientAddr->sin_addr));
+      mLogger << MODULE_NAME << "Received \"" << buf << "\" from " << strHost << ":" << pClientAddr->sin_port << std::endl;
+
+      size_t timerId = mpTimer->pushToTimerQueue(getTimerListener(), GARBAGE_TIMEOUT_SEC);
+      mGarbage.insert({timerId, pClientAddr});
+
+      mpListener->onNetPacket((struct sockaddr *)pClientAddr, std::string(buf));
    }
 }
 

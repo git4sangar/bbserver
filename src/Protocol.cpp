@@ -17,7 +17,7 @@ Protocol::Protocol(FileManager::Ptr pFileMgr, ReadWriteLock::Ptr pRdWrtLock)
 	, mpRdWrtLock {	pRdWrtLock}
 	, mpCurState { nullptr }
 	, mActiveTimeoutId{0}
-	, mLastMsgNo{0}
+	, mReplaceNo{0}
 	, mPositiveAcks{0}
 	, mSuccessCount{0}
 	, mLogger{ Logger::getInstance() }
@@ -32,17 +32,17 @@ void Protocol::init() {
 	mpCurState = StateMachine::getInstance(States::Idle, getSharePtr());
 }
 
-void Protocol::broadcastMessage(const std::string& pMsg) {
-	std::string strMsg = pMsg;
-	if (strMsg == COMMIT) {
+void Protocol::broadcastMessage(const std::string& pCmd) {
+	std::string strCmd = pCmd;
+	if (strCmd == COMMIT) {
 		std::stringstream ss;
-		ss << strMsg << "/" << mSender << "/" << mMsgToWrite;
-		strMsg = ss.str();
+		ss << strCmd << "/" << mSender << "/" << mMsgToWrite << "/" << mReplaceNo;
+		strCmd = ss.str();
 	}
 
-	mLogger << MODULE_NAME << "Broadcasting " << strMsg << " to all peers" << std::endl;
+	mLogger << MODULE_NAME << "Broadcasting " << strCmd << " to all peers" << std::endl;
 	for (const auto& [host, port] : mpCfgMgr->getPeers()) {
-		mpNetMgrSync->sendPacket(host, port, strMsg);
+		mpNetMgrSync->sendPacket(host, port, strCmd);
 	}
 }
 
@@ -91,7 +91,7 @@ void Protocol::sendMessageToPeer(const struct sockaddr *pClientAddr, const std::
 	}
 }
 
-bool Protocol::onWriteRequest(const struct sockaddr *pClientAddr, const std::string& pSender, const std::string& pMsg) {
+bool Protocol::onWriteOrReplace(const struct sockaddr *pClientAddr, const std::string& pSender, const std::string& pMsg, size_t pReplaceNo) {
 	mLogger << MODULE_NAME << "OnWrite Request" << std::endl;
 	if (mpCurState->getStateEnum() != States::Idle)
 		return false;
@@ -101,6 +101,7 @@ bool Protocol::onWriteRequest(const struct sockaddr *pClientAddr, const std::str
 		mpSenderSockAddr = pClientAddr;
 		mSender = pSender;
 		mMsgToWrite = pMsg;
+		mReplaceNo = pReplaceNo;
 		mLogger << MODULE_NAME << "--- " << mpCurState->getStateName() << " --> to --> " << pNewState->getStateName() << " ---" << std::endl;
 		mpCurState = pNewState; 
 		return true;
@@ -108,13 +109,16 @@ bool Protocol::onWriteRequest(const struct sockaddr *pClientAddr, const std::str
 	return false;
 }
 
-void Protocol::sendWriteResponse(const std::string& pMsg) {
+void Protocol::sendWriteResponse(const std::string& pMsg, size_t pMsgNo) {
 	std::string strMsg = pMsg;
 	if (pMsg.find("WROTE") == 0)
-		strMsg = pMsg + std::string(" ") + std::to_string(mLastMsgNo);
-	mLogger << MODULE_NAME << "Sending write response " << std::endl;
+		strMsg = pMsg + std::string(" ") + std::to_string(pMsgNo);
+	else if(mReplaceNo > 0)
+		strMsg = std::string("UNKNOWN ") + std::to_string(mReplaceNo);
 
-	mpNetMgrSync->sendPacket(mpSenderSockAddr, pMsg);
+	mLogger << MODULE_NAME << "Sending write response " << strMsg << std::endl;
+
+	mpNetMgrSync->sendPacket(mpSenderSockAddr, strMsg);
 	mpSenderSockAddr = nullptr;
 }
 
@@ -133,7 +137,7 @@ void Protocol::onTimeout(size_t pTimeoutId) {
 }
 
 void Protocol::clearAll() {
-	mPositiveAcks = mSuccessCount = 0;
+	mReplaceNo = mPositiveAcks = mSuccessCount = 0;
 	mActiveTimeoutId = 0;
 	mMsgToWrite.clear();
 	mSender.clear();
@@ -146,9 +150,10 @@ bool Protocol::parsePacket(const std::string& pPkt) {
 	std::stringstream ss(pPkt);
 	while (std::getline(ss, word, '/'))
 		words.push_back(word);
-	if (words.size() >= 3) {
+	if (words.size() >= 4) {
 		mSender = words[1];	//	Sender
 		mMsgToWrite = words[2];	//	Msg
+		mReplaceNo = std::stol(words[3]); // Replace No
 		return true;
 	}
 	return false;

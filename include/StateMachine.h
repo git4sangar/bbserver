@@ -99,7 +99,7 @@ private:
 	ServerCommitState(std::shared_ptr<Protocol> pProtocol)
 		: StateMachine(pProtocol)
 	{}
-	StateMachine* onAllSuccess();
+	StateMachine* onAllSuccess(size_t pMsgNo = 0);
 	StateMachine* onFailure();
 	static ServerCommitState* pThis;
 };

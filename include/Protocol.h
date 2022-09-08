@@ -35,12 +35,12 @@ public:
 		mActiveTimeoutId = 0;
 	}
 
-	bool onWriteRequest(const struct sockaddr *pClientAddr, const std::string& pSender, const std::string& pMsg);
+	bool onWriteOrReplace(const struct sockaddr *pClientAddr, const std::string& pSender, const std::string& pMsg, size_t pReplaceNo = 0);
 	bool onNetPacket(const struct sockaddr *pClientAddr, const std::string& pPkt);
 	void onTimeout(size_t pTimeoutId);
 
 	void sendMessageToPeer(const struct sockaddr *pClientAddr, const std::string& pMsg);
-	void sendWriteResponse(const std::string& pMsg);
+	void sendWriteResponse(const std::string& pMsg, size_t pMsgNo = 0);
 
 	void grabReadLock() { mpRdWrtLock->read_lock(); }
 	void grabWriteLock() { mpRdWrtLock->write_lock(); }
@@ -48,10 +48,11 @@ public:
 	void releaseWriteLock() { mpRdWrtLock->write_unlock(); }
 	void forceQuit();
 
-	bool writeMsg() {
-		mLastMsgNo = mpFileMgr->writeToFile(mSender, mMsgToWrite);
-		return (mLastMsgNo > 0);
+	size_t writeOrReplaceMsg() {
+		size_t msgNo = mpFileMgr->writeOrReplace(mSender, mMsgToWrite, mReplaceNo);
+		return msgNo;
 	}
+
 	void undoWrite() {
 		mpFileMgr->undoLastWritten();
 	}
@@ -71,7 +72,7 @@ private:
 	StateMachine* mpCurState;
 
 	unsigned int mPositiveAcks, mSuccessCount;
-	size_t mActiveTimeoutId, mLastMsgNo;
+	size_t mActiveTimeoutId, mReplaceNo;
 	std::string mMsgToWrite, mSender;
 	Logger& mLogger;
 	const struct sockaddr *mpSenderSockAddr;

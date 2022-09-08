@@ -85,7 +85,9 @@ namespace util {
 		return strLine;
 	}
 
-	size_t FileManager::writeToFile(std::string pSender, std::string pMsg) {
+	size_t FileManager::writeOrReplace(const std::string& pSender, const std::string& pMsg, size_t pReplaceNo) {
+		if(pReplaceNo > 0) return replaceMessage(pReplaceNo, pSender, pMsg);
+
 		std::stringstream ss;
 		ss << ++mLastMsgNo << "/" << pSender << "/" << pMsg << std::endl;
 		if (ss.str().length() < MIN_MSG_LENGTH) return false;
@@ -111,8 +113,8 @@ namespace util {
 		return true;
 	}
 
-	bool FileManager::replaceMessage(size_t pMsgNo, std::string pSender, std::string pMsg) { 
-		if (mFileIndices.count(pMsgNo) == 0) return false;
+	size_t FileManager::replaceMessage(size_t pMsgNo, const std::string& pSender, const std::string& pMsg) { 
+		if (mFileIndices.count(pMsgNo) == 0) return 0;
 
 		std::stringstream ss;
 		ss << pMsgNo << "/" << pSender << "/" << pMsg << std::endl;
@@ -132,7 +134,7 @@ namespace util {
 			size_t ulLineStart = moveToEOF();
 			writeAtPos(ulLineStart, std::ios::beg, ss.str());
 		}
-		return true;
+		return pMsgNo;
 	}
 
 	bool FileManager::getLine(std::fstream& pStream, std::string& pStrLine, size_t& pPos) {

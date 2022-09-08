@@ -23,8 +23,8 @@ namespace util {
 		~FileManager() { mLogger << "FileManager : Closing BBFile" << std::endl; mBBFile.close(); }
 
 		std::string readFromFile(size_t pMsgNo);
-		size_t writeToFile(std::string pSender, std::string pMsg);
-		bool replaceMessage(size_t pMsgNo, std::string pSender, std::string pMsg);
+		size_t writeOrReplace(const std::string& pSender, const std::string& pMsg, size_t pReplaceNo = 0);
+		size_t replaceMessage(size_t pMsgNo, const std::string& pSender, const std::string& pMsg);
 		bool undoLastWritten();
 		void close();
 

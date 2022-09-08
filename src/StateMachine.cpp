@@ -80,16 +80,17 @@ StateMachine* ServerPrecommitState::onAllAck() {
 StateMachine* ServerCommitState::onSuccess() {
 	mLogger << std::endl << MODULE_NAME << "--- ServerCommitState::onSuccess ---" << std::endl;
 	mLogger << MODULE_NAME << "Wrt Msg" << std::endl;
-	auto pNewState = mpProtocol->writeMsg() ? onAllSuccess() : onFailure();
+	size_t msgNo = mpProtocol->writeOrReplaceMsg();
+	auto pNewState = (msgNo > 0) ? onAllSuccess(msgNo) : onFailure();
 	return pNewState;
 }
 
-StateMachine* ServerCommitState::onAllSuccess() {
+StateMachine* ServerCommitState::onAllSuccess(size_t pMsgNo) {
 	mLogger << std::endl << MODULE_NAME << "--- ServerCommitState::onAllSuccess ---" << std::endl;
 	mLogger << MODULE_NAME << "Rmv Tmr, Brd Msg, Wrt Resp, Rel Lk" << std::endl;
 	mpProtocol->removeActiveTimer();
 	mpProtocol->broadcastMessage(SUCCESSFUL);
-	mpProtocol->sendWriteResponse("WROTE");
+	mpProtocol->sendWriteResponse("WROTE", pMsgNo);
 	mpProtocol->releaseWriteLock();
 	return IdleState::getInstance(mpProtocol);
 }
@@ -108,7 +109,7 @@ StateMachine* ClientPrecommitState::onCommit(const struct sockaddr *pClientAddr)
 	mLogger << std::endl << MODULE_NAME << "--- ClientPrecommitState::onCommit ---" << std::endl;
 	mLogger << MODULE_NAME << "Rmv Tmr, Wrt Msg, Brd Msg, Add Tmr" << std::endl;
 	mpProtocol->removeActiveTimer();
-	mpProtocol->writeMsg()
+	(mpProtocol->writeOrReplaceMsg() > 0)
 		? mpProtocol->sendMessageToPeer(pClientAddr, SUCCESS)
 		: mpProtocol->sendMessageToPeer(pClientAddr, UNSUCCESS);
 	mpProtocol->addToTimer();

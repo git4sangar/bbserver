@@ -25,7 +25,7 @@ void recvTask(int sockfd, struct sockaddr_in *pToAddr, socklen_t *pLen) {
 int main() {
     int sockfd, recvd;
     char buf[BUFFSIZE];
-    std::string strMsg = "WRITE sgn test write 01";
+    std::string strMsg = "REPLACE 1000/sgn test write write again 1000";
     sockfd = socket(AF_INET, SOCK_DGRAM, 0);
 
     struct sockaddr_in their_addr;
@@ -38,7 +38,7 @@ int main() {
     std::cout << "Sent msg from port " << their_addr.sin_port << std::endl;
 
 
-    util::thread_pool pool(2);
+    util::ThreadPool pool(2);
     socklen_t len = sizeof(struct sockaddr_in);
     std::future<void> recvFuture = pool.submit(recvTask, sockfd, &their_addr, &len);
     recvFuture.wait();

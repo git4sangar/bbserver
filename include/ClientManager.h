@@ -43,7 +43,9 @@ private:
 	std::string handleUserCmd(const std::string& pHost, const std::string pPkt);
 	std::string handleReadCmd(const std::string& pPkt);
 	std::string handleWriteCmd(const std::string& pHost, const struct sockaddr *pClientAddr, const std::string& pPkt);
+	std::string handleReplaceCmd(const std::string& pHost, const struct sockaddr *pClientAddr, const std::string& pPkt);
 	std::string myTrim(std::string str);
+	bool checkLength(const std::string& pPkt, const std::string& pCmd) { return (pPkt.length() > pCmd.length()); }
 
 	std::unordered_map<std::string, std::string> mHost2UserMap;
 	FileManager::Ptr mpFileMgr;

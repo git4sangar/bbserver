@@ -58,32 +58,31 @@ void sighupHandler(int signum) { pClientMgr->onSigHup(); startApp(); }
 void sigQuitHandler(int signum) { pClientMgr->onSigHup(); exit(0); }
 
 int main(int argc, char* argv[]) {
+    if(argc == 2 && !strcmp(argv[1], "-h")) { printHelp(); return 0; }
+
     pid_t pid;
     pid = fork();
 
-    //  Exit the parent process
-    if(0 < pid) {
-        std::cout << "Exiting pid " << getpid() << std::endl;
-        exit(EXIT_SUCCESS);
-    }
+    if(0 < pid) exit(EXIT_SUCCESS); // parent process
+    if(0 > pid) return -1;  //  error creating child process
 
-    //  -ve return means error
-    if(0 > pid) {
-        std::cout << "Error creating child process" << std::endl;
-        return -1;
-    }
-
-    //--------------Child Process--------------
+    //  Child Process
     signal(SIGHUP,sighupHandler);
     signal(SIGQUIT,sigQuitHandler);
 
-    if(argc == 2 && !strcmp(argv[1], "-h")) { printHelp(); return 0; }
+    //  Write the pid to file first
+    pid_t myPid = ::getpid();
+    logger << "My PID " << myPid << std::endl;
+    std::ofstream pidFile("bbserv.pid", std::ios::out | std::ios::trunc);
+    pidFile << myPid;
+    pidFile.close();
 
-    logger << "My PID " << ::getpid() << std::endl;
+    //  Parse the config file
     ConfigManager *pCfgMgr = nullptr;
     try { pCfgMgr = ConfigManager::getInstance(); }
     catch(std::exception &e) { logger << e.what() << std::endl; }
 
+    //  Handle command line arguments and override parsed cfg file
     bool bDebug = false, bStartUp = false;
     int opt = 0;
     while ((opt = getopt(argc, argv, "c:b:T:p:s:fdh")) != -1) {
@@ -122,8 +121,8 @@ int main(int argc, char* argv[]) {
         }
     }
 
-    startApp();
+    startApp(); //  Start the app
 
-    while(1) sleep(60);
+    while(1) sleep(60); //  Just sleep in background
     return 0;
 }

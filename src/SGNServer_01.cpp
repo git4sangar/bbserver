@@ -11,6 +11,7 @@
 #include <string.h>
 
 #include "Constants.h"
+#include "FileLogger.h"
 #include "FileManager.h"
 #include "ReadWriteLock.h"
 #include "ClientManager.h"
@@ -24,9 +25,10 @@ ReadWriteLock::Ptr pRdWrLock = nullptr;
 FileManager::Ptr pFileMgr = nullptr;
 ClientManager::Ptr pClientMgr = nullptr;
 ThreadPool::Ptr pThreadPool = nullptr;
+Logger& logger = Logger::getInstance();
 
 void printHelp() {
-    std::cout << "BBServer 1.0" << std::endl
+    logger << "BBServer 1.0" << std::endl
               << "Usage: BBServer [option] as follows" << std::endl
               << "-c followed by name of the config file to be used" << std::endl
               << "-b followed by name of the bbfile" << std::endl
@@ -49,22 +51,38 @@ void startApp() {
     pClientMgr = std::make_shared<ClientManager>(pFileMgr, pRdWrLock);
     pClientMgr->init();
     sleep(1);   //  Wait a bit for all modules to initialize and get ready
-    Logger::getInstance().getInstance() << "--- Started BBServer Successfully ---" << std::endl << std::endl;
+    logger << "--- Started BBServer Successfully ---" << std::endl << std::endl;
 }
 
 void sighupHandler(int signum) { pClientMgr->onSigHup(); startApp(); }
 void sigQuitHandler(int signum) { pClientMgr->onSigHup(); exit(0); }
 
 int main(int argc, char* argv[]) {
+    pid_t pid;
+    pid = fork();
+
+    //  Exit the parent process
+    if(0 < pid) {
+        std::cout << "Exiting pid " << getpid() << std::endl;
+        exit(EXIT_SUCCESS);
+    }
+
+    //  -ve return means error
+    if(0 > pid) {
+        std::cout << "Error creating child process" << std::endl;
+        return -1;
+    }
+
+    //--------------Child Process--------------
     signal(SIGHUP,sighupHandler);
     signal(SIGQUIT,sigQuitHandler);
 
     if(argc == 2 && !strcmp(argv[1], "-h")) { printHelp(); return 0; }
 
-    std::cout << "My PID " << ::getpid() << std::endl;
+    logger << "My PID " << ::getpid() << std::endl;
     ConfigManager *pCfgMgr = nullptr;
     try { pCfgMgr = ConfigManager::getInstance(); }
-    catch(std::exception &e) { std::cout << e.what() << std::endl; }
+    catch(std::exception &e) { logger << e.what() << std::endl; }
 
     bool bDebug = false, bStartUp = false;
     int opt = 0;
@@ -74,7 +92,7 @@ int main(int argc, char* argv[]) {
                 try {pCfgMgr->parseCfgFile(optarg);
                     if(pCfgMgr->getBBFile().empty()) throw std::runtime_error("Missing BBFile");}
                 catch(std::exception &e) {
-                    std::cout << e.what() << std::endl;
+                    logger << e.what() << std::endl;
                     return 0;
                 }
                 break;
@@ -83,15 +101,15 @@ int main(int argc, char* argv[]) {
                 break;
             case 'T':
                 try {pCfgMgr->setMaxThreads(std::stol(optarg));}
-                catch(std::exception &e) {std::cout << e.what() << std::endl;}
+                catch(std::exception &e) {logger << e.what() << std::endl;}
                 break;
             case 'p':
                 try {pCfgMgr->setBPort(std::stol(optarg));}
-                catch(std::exception &e) {std::cout << e.what() << std::endl;}
+                catch(std::exception &e) {logger << e.what() << std::endl;}
                 break;
             case 's':
                 try {pCfgMgr->setSyncPort(std::stol(optarg));}
-                catch(std::exception &e) {std::cout << e.what() << std::endl;}
+                catch(std::exception &e) {logger << e.what() << std::endl;}
                 break;
             case 'f':
                 bStartUp = !bStartUp;

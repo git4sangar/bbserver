@@ -60,23 +60,6 @@ void sigQuitHandler(int signum) { pClientMgr->onSigHup(); exit(0); }
 int main(int argc, char* argv[]) {
     if(argc == 2 && !strcmp(argv[1], "-h")) { printHelp(); return 0; }
 
-    pid_t pid;
-    pid = fork();
-
-    if(0 < pid) exit(EXIT_SUCCESS); // parent process
-    if(0 > pid) return -1;  //  error creating child process
-
-    //  Child Process
-    signal(SIGHUP,sighupHandler);
-    signal(SIGQUIT,sigQuitHandler);
-
-    //  Write the pid to file first
-    pid_t myPid = ::getpid();
-    logger << "My PID " << myPid << std::endl;
-    std::ofstream pidFile("bbserv.pid", std::ios::out | std::ios::trunc);
-    pidFile << myPid;
-    pidFile.close();
-
     //  Parse the config file
     ConfigManager *pCfgMgr = nullptr;
     try { pCfgMgr = ConfigManager::getInstance(); }
@@ -88,12 +71,7 @@ int main(int argc, char* argv[]) {
     while ((opt = getopt(argc, argv, "c:b:T:p:s:fdh")) != -1) {
         switch(opt) {
             case 'c':
-                try {pCfgMgr->parseCfgFile(optarg);
-                    if(pCfgMgr->getBBFile().empty()) throw std::runtime_error("Missing BBFile");}
-                catch(std::exception &e) {
-                    logger << e.what() << std::endl;
-                    return 0;
-                }
+                pCfgMgr->parseCfgFile(optarg);
                 break;
             case 'b':
                 pCfgMgr->setBBFile(optarg);
@@ -120,6 +98,24 @@ int main(int argc, char* argv[]) {
                 break;          
         }
     }
+
+    try { if(pCfgMgr->getBBFile().empty()) throw std::runtime_error("Missing BBFile");}
+    catch(std::exception &e) { logger << e.what() << std::endl; return 0; }
+
+    pid_t pid = fork();
+    if(0 < pid) exit(EXIT_SUCCESS); // parent process
+    if(0 > pid) return -1;  //  error creating child process
+
+    //  Child Process
+    signal(SIGHUP,sighupHandler);
+    signal(SIGQUIT,sigQuitHandler);
+
+    //  Write the pid to file first
+    pid_t myPid = ::getpid();
+    logger << "My PID " << myPid << std::endl;
+    std::ofstream pidFile("bbserv.pid", std::ios::out | std::ios::trunc);
+    pidFile << myPid;
+    pidFile.close();
 
     startApp(); //  Start the app
 

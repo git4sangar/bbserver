@@ -10,7 +10,17 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 
+#include "ThreadPool.h"
+
 #define BUFFSIZE (10*1024)
+
+void recvTask(int sockfd, struct sockaddr_in *pToAddr, socklen_t *pLen) {
+    char buf[BUFFSIZE];
+    int recvd = recvfrom(sockfd, buf, BUFFSIZE, 0, (struct sockaddr *) pToAddr, (socklen_t*)pLen);
+    buf[recvd] = '\0';
+    std::string strHost = std::string(inet_ntoa(pToAddr->sin_addr));
+    std::cout << "Received " << buf << " from " << strHost << ":" << pToAddr->sin_port << std::endl;
+}
 
 int main() {
     int sockfd, recvd;
@@ -28,13 +38,16 @@ int main() {
     std::cout << "Sent msg from port " << their_addr.sin_port << std::endl;
 
 
-
-    std::cout << "Waiting for response" << std::endl;
+    util::thread_pool pool(2);
+    socklen_t len = sizeof(struct sockaddr_in);
+    std::future<void> recvFuture = pool.submit(recvTask, sockfd, &their_addr, &len);
+    recvFuture.wait();
+    /*std::cout << "Waiting for response" << std::endl;
     bzero(buf, BUFFSIZE);
     recvd = recvfrom(sockfd, buf, BUFFSIZE, 0, (struct sockaddr *) &their_addr, (socklen_t*)&their_addr);
     buf[recvd] = '\0';
 
     std::string strHost = std::string(inet_ntoa(their_addr.sin_addr));
-    std::cout << "Received " << buf << " from " << strHost << ":" << their_addr.sin_port << std::endl;
+    std::cout << "Received " << buf << " from " << strHost << ":" << their_addr.sin_port << std::endl;*/
     return 0;
 }

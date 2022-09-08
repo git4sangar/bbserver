@@ -3,6 +3,7 @@
 #include <strings.h>
 #include <string.h>
 
+#include "Constants.h"
 #include "NetworkManager.h"
 
 #define MODULE_NAME "NetworkManager : "
@@ -74,7 +75,8 @@ void NetworkManager::receiveThread(unsigned int pPort) {
       size_t timerId = mpTimer->pushToTimerQueue(getTimerListener(), GARBAGE_TIMEOUT_SEC);
       mGarbage.insert({timerId, pClientAddr});
 
-      mpListener->onNetPacket((struct sockaddr *)pClientAddr, std::string(buf));
+      pThreadPool->push_task(&NetworkListener::onNetPacket, mpListener, (struct sockaddr *)pClientAddr, std::string(buf));
+      //mpListener->onNetPacket((struct sockaddr *)pClientAddr, std::string(buf));
    }
 }
 

@@ -15,7 +15,7 @@ namespace util {
 	Logger* Logger::pLogger = NULL;
 
 	Logger& Logger::getInstance() {
-		if (NULL == pLogger) {
+		if (!pLogger) {
 			pLogger = new Logger();
 			*pLogger << MODULE_NAME << "Logger Started" << std::endl;
 		}
@@ -32,8 +32,8 @@ namespace util {
 		gettimeofday(&st, NULL);
 
 		//	why do i need secs since epoch? get secs from now
-		//	1584718500 => secs since epoch till now (20-Mar-20 21:05)
-		unsigned long secs = st.tv_sec - 1584718500;
+		//	1662576683 => secs since epoch till now (07-Sep-22 00:05)
+		unsigned long secs = st.tv_sec - 1662576683;
 		secs = secs % 36000;	// reset secs every 10 hours
 		unsigned long msecs = st.tv_usec / 1000;
 		unsigned long usecs = st.tv_usec % 1000;

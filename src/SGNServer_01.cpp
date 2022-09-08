@@ -15,12 +15,15 @@
 #include "ReadWriteLock.h"
 #include "ClientManager.h"
 #include "FileLogger.h"
+#include "ThreadPool.h"
 
 using namespace util;
 
+//  Global pointers as we need to access in signal handler
 ReadWriteLock::Ptr pRdWrLock = nullptr;
 FileManager::Ptr pFileMgr = nullptr;
 ClientManager::Ptr pClientMgr = nullptr;
+ThreadPool::Ptr pThreadPool = nullptr;
 
 void printHelp() {
     std::cout << "BBServer 1.0" << std::endl
@@ -36,6 +39,9 @@ void printHelp() {
 }
 
 void startApp() {
+    ConfigManager *pCfgMgr = ConfigManager::getInstance();
+    pThreadPool = std::make_shared<ThreadPool>(pCfgMgr->getMaxThreads());
+
     pRdWrLock = std::make_shared<ReadWriteLock>();    
     pFileMgr = std::make_shared<FileManager>();
     pFileMgr->init();
@@ -56,7 +62,7 @@ int main(int argc, char* argv[]) {
     if(argc == 2 && !strcmp(argv[1], "-h")) { printHelp(); return 0; }
 
     std::cout << "My PID " << ::getpid() << std::endl;
-    util::ConfigManager *pCfgMgr = nullptr;
+    ConfigManager *pCfgMgr = nullptr;
     try { pCfgMgr = ConfigManager::getInstance(); }
     catch(std::exception &e) { std::cout << e.what() << std::endl; }
 

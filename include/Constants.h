@@ -1,6 +1,7 @@
 //sgn
 #pragma once
 #include <iostream>
+#include "ThreadPool.h"
 
 #define USER_CMD		(1001)
 #define READ_CMD		(1002)
@@ -30,3 +31,5 @@ extern std::string QUIT;
 extern std::string ALPHA_CAPS;
 extern std::string ALPHA_SMALL;
 extern std::string NUMERIC;
+
+extern util::ThreadPool::Ptr pThreadPool;

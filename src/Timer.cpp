@@ -3,6 +3,8 @@
 #include <thread>
 #include <chrono>
 #include <vector>
+
+#include "Constants.h"
 #include "Timer.h"
 
 #define MODULE_NAME		"Timer : "
@@ -76,7 +78,7 @@ namespace util {
 			for (auto pElementItr = mTimerElements.begin(); pElementItr != mTimerElements.end(); ) {
 				TimerElement::Ptr pElement = *pElementItr;
 				pElement->mDuration--;
-				isQuit = isQuit | pElement->mbQuit;
+				isQuit = isQuit || pElement->mbQuit;
 				if (pElement->mDuration == 0) {
 					pElementItr = mTimerElements.erase(pElementItr);
 					toCallList.push_back(pElement);
@@ -86,9 +88,11 @@ namespace util {
 			mQueueLock.unlock();
 
 			for (const auto& pElement : toCallList) {
-				//	Submit the following to threadpool
 				mLogger << MODULE_NAME << "Invoking timer function with id " << pElement->mTimerId << std::endl;
-				if(pElement->mListener) pElement->mListener->onTimeout(pElement->mTimerId);
+				if(pElement->mListener) {
+					pThreadPool->push_task(&TimerListener::onTimeout, pElement->mListener, pElement->mTimerId);
+					//pElement->mListener->onTimeout(pElement->mTimerId);
+				}
 			}
 
 			if(isQuit) {

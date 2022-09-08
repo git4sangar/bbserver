@@ -11,6 +11,7 @@
 #include <thread>
 #include <map>
 
+#include "Constants.h"
 #include "Timer.h"
 
 #define BUFFSIZE 			(10*1024)
@@ -35,7 +36,10 @@ namespace util {
 			, mPort {pPort}
 			, mLogger{ Logger::getInstance() }
 			, mpTimer{ Timer::getInstance() }
-		{ std::thread tRecv(&NetworkManager::receiveThread, this, pPort); tRecv.detach();}
+		{
+			//std::thread tRecv(&NetworkManager::receiveThread, this, pPort); tRecv.detach();
+			pThreadPool->push_task(&NetworkManager::receiveThread, this, pPort);
+		}
 		~NetworkManager() {}
 
 		void sendPacket(std::string pHost, unsigned int pPort, std::string strMsg);

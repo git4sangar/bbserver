@@ -7,6 +7,8 @@
 #include <utility>
 #include <mutex>
 #include <condition_variable>
+
+#include "Constants.h"
 #include "FileLogger.h"
 
 namespace util {
@@ -40,8 +42,9 @@ namespace util {
 			if (!pThis) {
 				pThis = new Timer();
 				pThis->mLogger << "Timer : Started" << std::endl;
-				std::thread tTimer(&Timer::run, pThis);
-				tTimer.detach();
+				pThreadPool->push_task(&Timer::run, pThis);
+				//std::thread tTimer(&Timer::run, pThis);
+				//tTimer.detach();
 			}
 			return pThis;
 		}

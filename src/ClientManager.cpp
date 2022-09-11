@@ -37,7 +37,7 @@ std::string ClientManager::handleUserCmd(const std::string& pHost, const std::st
 
 std::string ClientManager::handleReadCmd(const std::string& pPkt) {
 	mLogger << MODULE_NAME << "handleReadCmd {" << std::endl;
-	if (pPkt.find_first_not_of(NUMERIC) != std::string::npos)
+	if (pPkt.find_first_not_of(ALPHA_CAPS + ALPHA_SMALL + NUMERIC + "\t ") != std::string::npos)
 		return "ERROR READ Invalid message number";
 
 	std::string strMsgNo, strMsg;

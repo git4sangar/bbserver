@@ -25,13 +25,14 @@ void recvTask(int sockfd, struct sockaddr_in *pToAddr, socklen_t *pLen) {
 int main() {
     int sockfd, recvd;
     char buf[BUFFSIZE];
-    std::string strMsg = "REPLACE 1000/sgn test write write again 1000";
+    //std::string strMsg = "WRITE sgn test 2 new systems Abhi";
+    std::string strMsg = "READ102";
     sockfd = socket(AF_INET, SOCK_DGRAM, 0);
 
     struct sockaddr_in their_addr;
     struct hostent* he = gethostbyname("192.168.83.129");
     their_addr.sin_family = AF_INET;
-    their_addr.sin_port = htons(10001);
+    their_addr.sin_port = htons(10002);
     their_addr.sin_addr = *((struct in_addr *)he->h_addr);
     
     sendto(sockfd, strMsg.c_str(), strMsg.length(), 0, (struct sockaddr *)&their_addr, sizeof(struct sockaddr));

@@ -128,11 +128,14 @@ namespace util {
 			std::string strPad(posAndLen.second - ss.str().length(), ' ');
 			ss.str("");  ss << pMsgNo << "/" << pSender << "/" << pMsg << strPad << std::endl;
 			writeAtPos(posAndLen.first, std::ios::beg, ss.str());
+			mFileIndices[pMsgNo].second = ss.str().length();
 		} else {
 			mLogger << MODULE_NAME << "Replace : Existing Line < New Line" << std::endl;
 			writeDummyAtPos(posAndLen.first, posAndLen.second);
 			size_t ulLineStart = moveToEOF();
 			writeAtPos(ulLineStart, std::ios::beg, ss.str());
+			mFileIndices[pMsgNo].first = ulLineStart;
+			mFileIndices[pMsgNo].second = ss.str().length();
 		}
 		return pMsgNo;
 	}

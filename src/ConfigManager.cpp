@@ -28,9 +28,9 @@ namespace util {
 
     void ConfigManager::parseCfgFile(const std::string& pCfgFileName) {
         mLogger << MODULE_NAME << "parsing config file " << pCfgFileName << std::endl;
-        if (pCfgFileName.empty()) throw std::runtime_error("ConfigManager: Invalid cfg file");
+        if (pCfgFileName.empty()) { mLogger << MODULE_NAME << "ConfigManager: Invalid cfg file" << std::endl; return; }
         std::ifstream cfgFile(pCfgFileName);
-        if (!cfgFile) throw std::runtime_error("ConfigManager: Error reading cfg file");
+        if (!cfgFile) { mLogger << MODULE_NAME << "ConfigManager: Error reading cfg file" << std::endl; return; }
 
         std::string strLine, strKey, strVal;
         mLogger << MODULE_NAME << "started parsing config file " << pCfgFileName << std::endl;
@@ -72,7 +72,7 @@ namespace util {
     const std::string& ConfigManager::getBBFile() { return mBBFile; }
     bool ConfigManager::isServerStartup() { return m_d; }
     bool ConfigManager::isDebug() { return m_D; }
-    const std::map<std::string, unsigned int>& ConfigManager::getPeers() { return mPeers; }
+    const std::vector<std::pair<std::string, uint32_t>>& ConfigManager::getPeers() { return mPeers; }
 
     ConfigManager::~ConfigManager() {}
 
@@ -83,9 +83,9 @@ namespace util {
         return false;
     }
 
-    std::map<std::string, unsigned int> ConfigManager::parsePeers(const std::string& strVal) {
-        std::map<std::string, unsigned int> retMap;
-        if (strVal.empty()) return retMap;
+    std::vector<std::pair<std::string, uint32_t>> ConfigManager::parsePeers(const std::string& strVal) {
+        std::vector<std::pair<std::string, uint32_t>> retPairs;
+        if (strVal.empty()) return retPairs;
 
         //  Get the pairs
         std::vector<std::string> ipPortPairs;
@@ -105,11 +105,11 @@ namespace util {
             if (nPos != std::string::npos && (nPos + 1) < ipPortPair.length()) {
                 auto strKey = ipPortPair.substr(0, nPos);
                 auto iPort = std::stol(ipPortPair.substr(nPos+1));
-                retMap.insert({strKey, iPort});
+                retPairs.push_back( std::make_pair(strKey, iPort) );
             }
         }
 
-        return retMap;
+        return retPairs;
     }
 
 }	// namespace util

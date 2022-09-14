@@ -42,6 +42,8 @@ void Protocol::broadcastMessage(const std::string& pCmd) {
 	}
 
 	mLogger << MODULE_NAME << "Broadcasting " << strCmd << " to all peers" << std::endl;
+	strCmd += '$';
+	strCmd += std::to_string(mpCfgMgr->getSyncPort());
 	for (const auto& [host, port] : mpCfgMgr->getPeers()) {
 		mpNetMgrSync->sendPacket(host, port, strCmd);
 	}
@@ -86,10 +88,15 @@ void Protocol::sendMessageToPeer(const struct sockaddr *pClientAddr, const std::
 	const struct sockaddr_in *pClientAddrIn = (const struct sockaddr_in *)pClientAddr;
 	std::string strHost(inet_ntoa(pClientAddrIn->sin_addr));
 
-	const std::map<std::string, unsigned int>& peers = mpCfgMgr->getPeers();
-	if(peers.count(strHost) > 0) {
-		mpNetMgrSync->sendPacket(strHost, peers.at(strHost), pMsg);
-	}
+	mpNetMgrSync->sendPacket(strHost, pClientAddrIn->sin_port, pMsg);
+	/*for(const auto& [host, port] : mpCfgMgr->getPeers()) {
+		if(strHost == host) mpNetMgrSync->sendPacket(strHost, port, pMsg);
+		else {
+			std::string strIp = mpNetMgrSync->getIpOfHost(host);
+			std::cout << "Got ip address " << strIp << " for host " << host << std::endl;
+			if(strIp == strHost) mpNetMgrSync->sendPacket(strHost, port, pMsg);
+		}
+	}*/
 }
 
 bool Protocol::onWriteOrReplace(int32_t connfd, const std::string& pSender, const std::string& pMsg, size_t pReplaceNo) {

@@ -10,6 +10,7 @@
 #include <netdb.h>
 #include <thread>
 #include <map>
+#include <utility>
 
 #include "Constants.h"
 #include "Timer.h"
@@ -44,6 +45,8 @@ namespace util {
 		void sendPacket(const struct sockaddr* pClientaddr, std::string strMsg);
 		void receiveThread(unsigned int pPort);
 		void quitReceiveThread() { sendPacket("localhost", mPort, "QUIT"); }
+
+		std::string getIpOfHost(std::string strHostName);
 
 		void onTimeout(size_t pTimeoutId) { delete mGarbage[pTimeoutId]; mGarbage.erase(pTimeoutId); } 	
 		TimerListener::Ptr getTimerListener() { return shared_from_this(); }

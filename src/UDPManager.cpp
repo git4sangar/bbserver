@@ -30,10 +30,16 @@ void UDPManager::sendPacket(std::string pHost, unsigned int pPort, std::string s
 
 void UDPManager::sendPacket(const struct sockaddr* pClientaddr, const std::string strMsg) {
    const struct sockaddr_in *pClientAddrIn = (const struct sockaddr_in *)pClientaddr;
-   mLogger << MODULE_NAME << "Sending packet " << strMsg << " to " << inet_ntoa(pClientAddrIn->sin_addr) << std::endl;
+   mLogger << MODULE_NAME << "Sending packet " << strMsg << " to " << inet_ntoa(pClientAddrIn->sin_addr) << ":" << pClientAddrIn->sin_port << std::endl;
    int sockfd = socket(AF_INET, SOCK_DGRAM, 0);
    sendto(sockfd, strMsg.c_str(), strMsg.length(), 0, pClientaddr, sizeof(struct sockaddr));
    close(sockfd);
+}
+
+std::string UDPManager::getIpOfHost(std::string strHostName) {
+   struct hostent *host_entry = gethostbyname(strHostName.c_str());
+   char *IPbuffer = inet_ntoa(*((struct in_addr*)host_entry->h_addr_list[0]));
+   return std::string(IPbuffer);
 }
 
 void UDPManager::receiveThread(unsigned int pPort) {
@@ -53,7 +59,7 @@ void UDPManager::receiveThread(unsigned int pPort) {
    bind(sockfd, (struct sockaddr *)&serveraddr, sizeof(serveraddr));
    mLogger << MODULE_NAME << "Bound socket to port " << pPort << std::endl;
 
-   int clientlen = sizeof(struct sockaddr_in), recvd;
+   int clientlen = sizeof(struct sockaddr_in), recvd, pos;
    char buf[BUFFSIZE];
 
    while(1) {
@@ -63,20 +69,27 @@ void UDPManager::receiveThread(unsigned int pPort) {
 
       recvd = recvfrom(sockfd, buf, BUFFSIZE, 0, (struct sockaddr *) pClientAddr, (socklen_t*)&clientlen);
       buf[recvd] = '\0';
+      std::string strBuf(buf);
       if(std::string(buf) == "QUIT") {
          close(sockfd);
          mLogger << MODULE_NAME << "Quitting Recive Thread bound to port " << pPort << std::endl;
          return;
       }
 
+      if((pos = strBuf.find_first_of("$")) != std::string::npos) {
+         std::string strPort = strBuf.substr(pos+1);
+         pClientAddr->sin_port = std::stoi(strPort);
+         strBuf = strBuf.substr(0, pos);
+      }
+
       std::string strHost = std::string(inet_ntoa(pClientAddr->sin_addr));
-      mLogger << MODULE_NAME << "Received \"" << buf << "\" from " << strHost << ":" << pClientAddr->sin_port << std::endl;
+      mLogger << MODULE_NAME << "Received \"" << strBuf << "\" from " << strHost << ":" << pClientAddr->sin_port << std::endl;
 
       size_t timerId = mpTimer->pushToTimerQueue(getTimerListener(), GARBAGE_TIMEOUT_SEC);
       mGarbage.insert({timerId, pClientAddr});
 
-      pThreadPool->push_task(&UDPListener::onNetPacket, mpListener, (struct sockaddr *)pClientAddr, std::string(buf));
-      //mpListener->onNetPacket((struct sockaddr *)pClientAddr, std::string(buf));
+      pThreadPool->push_task(&UDPListener::onNetPacket, mpListener, (struct sockaddr *)pClientAddr, strBuf);
+      //mpListener->onNetPacket((struct sockaddr *)pClientAddr, strBuf);
    }
 }
 

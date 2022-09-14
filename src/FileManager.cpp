@@ -131,7 +131,7 @@ namespace util {
 			mFileIndices[pMsgNo].second = ss.str().length();
 		} else {
 			mLogger << MODULE_NAME << "Replace : Existing Line < New Line" << std::endl;
-			writeDummyAtPos(posAndLen.first, posAndLen.second);
+			writeDummyAtPos(posAndLen.first, posAndLen.second-1); // Don't overwrite the newline chart at the end
 			size_t ulLineStart = moveToEOF();
 			writeAtPos(ulLineStart, std::ios::beg, ss.str());
 			mFileIndices[pMsgNo].first = ulLineStart;

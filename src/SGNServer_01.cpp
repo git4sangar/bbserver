@@ -98,6 +98,14 @@ int main(int argc, char* argv[]) {
                 break;          
         }
     }
+    //  Parse non-switch arguments
+    if(argc - optind > 0) {
+        std::string strArgs;
+        for(uint32_t iLoop = optind; iLoop < argc; iLoop++) strArgs += (std::string(argv[iLoop]) + ' ');
+
+        const auto& peers = pCfgMgr->parsePeers(strArgs);
+        pCfgMgr->setPeers(peers);
+    }
 
     try { if(pCfgMgr->getBBFile().empty()) throw std::runtime_error("Missing BBFile");}
     catch(std::exception &e) { logger << e.what() << std::endl; return 0; }

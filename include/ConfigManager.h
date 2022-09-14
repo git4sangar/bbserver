@@ -2,6 +2,8 @@
 
 #include <iostream>
 #include <map>
+#include <utility>
+#include <vector>
 
 #include "FileLogger.h"
 
@@ -19,7 +21,7 @@ namespace util {
 		bool isServerStartup();
 		bool isDebug();
 
-		const std::map<std::string, unsigned int>& getPeers();
+		const std::vector<std::pair<std::string, uint32_t>>& getPeers();
 
 		void parseCfgFile(const std::string& pCfgFileName);
 		void setMaxThreads(unsigned int pMaxThreads) { mThreadMax = pMaxThreads; }
@@ -28,16 +30,17 @@ namespace util {
 		void setBBFile(std::string pBBFile) { mBBFile = pBBFile; }
 		void setServerStartup(bool isTrue) {m_d = isTrue;}
 		void setDebug(bool isTrue) { m_D = isTrue; }
+		void setPeers(const std::vector<std::pair<std::string, uint32_t>>& pPeers) { mPeers = pPeers; }
+		std::vector<std::pair<std::string, uint32_t>> parsePeers(const std::string& strVal);
 
 	private:
 		ConfigManager();
-		std::map<std::string, unsigned int> parsePeers(const std::string& strVal);
 		bool parseBool(const std::string& strVal);
 
 		unsigned int mThreadMax, mBBPort, mSyncPort;
 		std::string mBBFile;
 		bool m_d, m_D;
-		std::map<std::string, unsigned int> mPeers;
+		std::vector<std::pair<std::string, uint32_t>> mPeers;
 		Logger& mLogger;
 
 		static ConfigManager* pThis;

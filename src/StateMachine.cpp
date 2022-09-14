@@ -59,7 +59,7 @@ StateMachine* IdleState::onPrecommit(const struct sockaddr *pClientAddr) {
 }
 
 StateMachine* ServerPrecommitState::onNegativeAckOrTimeout() {
-	mLogger << std::endl << MODULE_NAME << "--- ServerPrecommitState::onNegativeAckOrTimeout ---" << std::endl;
+	mLogger << std::endl << MODULE_NAME << "--- ServerPrecommitState::onNegativeAckOrTimeout ---&&&" << std::endl;
 	mLogger << MODULE_NAME << "Brd Msg, Wrt Resp, Rel Lk" << std::endl;
 	mpProtocol->broadcastMessage(ABORT);
 	mpProtocol->sendWriteResponse("3.2 ERROR WRITE Peers negative ack or timedout");
@@ -96,7 +96,7 @@ StateMachine* ServerCommitState::onAllSuccess(size_t pMsgNo) {
 }
 
 StateMachine* ServerCommitState::onFailure() {
-	mLogger << std::endl << MODULE_NAME << "--- ServerCommitState::onFailures ---" << std::endl;
+	mLogger << std::endl << MODULE_NAME << "--- ServerCommitState::onFailure ---" << std::endl;
 	mLogger << MODULE_NAME << "Rmv Tmr, Brd Msg, Wrt Resp, Rel Lk" << std::endl;
 	mpProtocol->removeActiveTimer();
 	mpProtocol->broadcastMessage(UNSUCCESSFUL);

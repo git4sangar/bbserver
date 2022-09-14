@@ -112,10 +112,10 @@ bool Protocol::onWriteOrReplace(int32_t connfd, const std::string& pSender, cons
 
 void Protocol::sendWriteResponse(const std::string& pMsg, size_t pMsgNo) {
 	std::string strMsg = pMsg;
-	if (pMsg.find("WROTE") == 0)
+	if (pMsgNo > 0)
 		strMsg = std::string("3.0 WROTE ") + std::to_string(pMsgNo);
-	else if(mReplaceNo > 0)
-		strMsg = std::string("UNKNOWN ") + std::to_string(mReplaceNo);
+	else if(mReplaceNo > 0 && pMsgNo == 0)
+		strMsg = std::string("3.1 UNKNOWN ") + std::to_string(mReplaceNo);
 
 	mLogger << MODULE_NAME << "Sending write response " << strMsg << std::endl;
 

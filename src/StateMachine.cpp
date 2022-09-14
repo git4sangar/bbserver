@@ -62,7 +62,7 @@ StateMachine* ServerPrecommitState::onNegativeAckOrTimeout() {
 	mLogger << std::endl << MODULE_NAME << "--- ServerPrecommitState::onNegativeAckOrTimeout ---" << std::endl;
 	mLogger << MODULE_NAME << "Brd Msg, Wrt Resp, Rel Lk" << std::endl;
 	mpProtocol->broadcastMessage(ABORT);
-	mpProtocol->sendWriteResponse("ERROR WRITE Peers negative ack or timedout");
+	mpProtocol->sendWriteResponse("3.2 ERROR WRITE Peers negative ack or timedout");
 	mpProtocol->releaseWriteLock();
 	return IdleState::getInstance(mpProtocol);
 }
@@ -100,7 +100,7 @@ StateMachine* ServerCommitState::onFailure() {
 	mLogger << MODULE_NAME << "Rmv Tmr, Brd Msg, Wrt Resp, Rel Lk" << std::endl;
 	mpProtocol->removeActiveTimer();
 	mpProtocol->broadcastMessage(UNSUCCESSFUL);
-	mpProtocol->sendWriteResponse("ERROR WRITE Peers write failed");
+	mpProtocol->sendWriteResponse("3.2 ERROR WRITE Peers write failed");
 	mpProtocol->releaseWriteLock();
 	return IdleState::getInstance(mpProtocol);
 }

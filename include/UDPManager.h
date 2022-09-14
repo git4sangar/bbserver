@@ -15,9 +15,6 @@
 #include "Timer.h"
 #include "ThreadPool.h"
 
-#define BUFFSIZE 			(10*1024)
-#define GARBAGE_TIMEOUT_SEC (60)
-
 namespace util {
 	class UDPListener {
 	public:

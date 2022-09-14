@@ -5,6 +5,7 @@
 #include <sstream>
 #include <string>
 #include <thread>
+#include <unistd.h>
 
 #include "StateMachine.h"
 #include "Constants.h"
@@ -21,7 +22,7 @@ Protocol::Protocol(FileManager::Ptr pFileMgr, ReadWriteLock::Ptr pRdWrtLock)
 	, mPositiveAcks{0}
 	, mSuccessCount{0}
 	, mLogger{ Logger::getInstance() }
-	, mpSenderSockAddr{nullptr}
+	, mpSenderSockAddr{0}
 {
 	mpCfgMgr = ConfigManager::getInstance();
 	mpTimer = Timer::getInstance();
@@ -91,14 +92,14 @@ void Protocol::sendMessageToPeer(const struct sockaddr *pClientAddr, const std::
 	}
 }
 
-bool Protocol::onWriteOrReplace(const struct sockaddr *pClientAddr, const std::string& pSender, const std::string& pMsg, size_t pReplaceNo) {
+bool Protocol::onWriteOrReplace(int32_t connfd, const std::string& pSender, const std::string& pMsg, size_t pReplaceNo) {
 	mLogger << MODULE_NAME << "OnWrite Request" << std::endl;
 	if (mpCurState->getStateEnum() != States::Idle)
 		return false;
 
 	StateMachine* pNewState = mpCurState->onWriteRequest();
 	if (pNewState) {
-		mpSenderSockAddr = pClientAddr;
+		mpSenderSockAddr = connfd;
 		mSender = pSender;
 		mMsgToWrite = pMsg;
 		mReplaceNo = pReplaceNo;
@@ -112,14 +113,14 @@ bool Protocol::onWriteOrReplace(const struct sockaddr *pClientAddr, const std::s
 void Protocol::sendWriteResponse(const std::string& pMsg, size_t pMsgNo) {
 	std::string strMsg = pMsg;
 	if (pMsg.find("WROTE") == 0)
-		strMsg = pMsg + std::string(" ") + std::to_string(pMsgNo);
+		strMsg = std::string("3.0 WROTE ") + std::to_string(pMsgNo);
 	else if(mReplaceNo > 0)
 		strMsg = std::string("UNKNOWN ") + std::to_string(mReplaceNo);
 
 	mLogger << MODULE_NAME << "Sending write response " << strMsg << std::endl;
 
-	mpNetMgrSync->sendPacket(mpSenderSockAddr, strMsg);
-	mpSenderSockAddr = nullptr;
+	write(mpSenderSockAddr, strMsg.c_str(), strMsg.length());
+	mpSenderSockAddr = 0;
 }
 
 void Protocol::onTimeout(size_t pTimeoutId) {

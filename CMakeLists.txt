@@ -13,6 +13,7 @@ src/Constants.cpp
 src/FileLogger.cpp
 src/FileManager.cpp
 src/UDPManager.cpp
+src/TCPManager.cpp
 src/Protocol.cpp
 src/StateMachine.cpp
 src/Timer.cpp)

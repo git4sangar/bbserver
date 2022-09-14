@@ -35,7 +35,7 @@ public:
 		mActiveTimeoutId = 0;
 	}
 
-	bool onWriteOrReplace(const struct sockaddr *pClientAddr, const std::string& pSender, const std::string& pMsg, size_t pReplaceNo = 0);
+	bool onWriteOrReplace(int32_t connfd, const std::string& pSender, const std::string& pMsg, size_t pReplaceNo = 0);
 	bool onNetPacket(const struct sockaddr *pClientAddr, const std::string& pPkt);
 	void onTimeout(size_t pTimeoutId);
 
@@ -75,5 +75,5 @@ private:
 	size_t mActiveTimeoutId, mReplaceNo;
 	std::string mMsgToWrite, mSender;
 	Logger& mLogger;
-	const struct sockaddr *mpSenderSockAddr;
+	int32_t mpSenderSockAddr;
 };

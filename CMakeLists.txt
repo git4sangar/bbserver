@@ -12,7 +12,7 @@ src/ConfigManager.cpp
 src/Constants.cpp
 src/FileLogger.cpp
 src/FileManager.cpp
-src/NetworkManager.cpp
+src/UDPManager.cpp
 src/Protocol.cpp
 src/StateMachine.cpp
 src/Timer.cpp)

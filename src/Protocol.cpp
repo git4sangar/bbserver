@@ -28,7 +28,7 @@ Protocol::Protocol(FileManager::Ptr pFileMgr, ReadWriteLock::Ptr pRdWrtLock)
 }
 
 void Protocol::init() {
-	mpNetMgrSync = std::make_shared<NetworkManager>(getNetListenerPtr(), mpCfgMgr->getSyncPort());
+	mpNetMgrSync = std::make_shared<UDPManager>(getNetListenerPtr(), mpCfgMgr->getSyncPort());
 	mpCurState = StateMachine::getInstance(States::Idle, getSharePtr());
 }
 

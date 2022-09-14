@@ -7,7 +7,7 @@
 
 #include "ConfigManager.h"
 #include "ReadWriteLock.h"
-#include "NetworkManager.h"
+#include "UDPManager.h"
 #include "Timer.h"
 #include "Protocol.h"
 #include "FileManager.h"
@@ -29,7 +29,7 @@ public:
 		mpProtocol = std::make_shared<Protocol>(pFileMgr, pRdWrLock);
 		mpProtocol->init();
 	}
-	void init() { mpNetMagr = std::make_shared<NetworkManager>(getNetListenerPtr(), mpCfgMgr->getBPort()); }
+	void init() { mpNetMagr = std::make_shared<UDPManager>(getNetListenerPtr(), mpCfgMgr->getBPort()); }
 	virtual ~ClientManager() {}
 
 	NetworkListener::Ptr getNetListenerPtr() { return shared_from_this(); }
@@ -51,7 +51,7 @@ private:
 	FileManager::Ptr mpFileMgr;
 	ReadWriteLock::Ptr mpRdWrLock;
 	Protocol::Ptr mpProtocol;
-	NetworkManager::Ptr mpNetMagr;
+	UDPManager::Ptr mpNetMagr;
 	ConfigManager* mpCfgMgr;
 	Timer* mpTimer;
 	Logger& mLogger;

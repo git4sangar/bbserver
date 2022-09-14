@@ -6,7 +6,7 @@
 
 #include "Constants.h"
 #include "ReadWriteLock.h"
-#include "NetworkManager.h"
+#include "UDPManager.h"
 #include "FileManager.h"
 #include "FileLogger.h"
 #include "Timer.h"
@@ -64,7 +64,7 @@ public:
 private:
 	bool parsePacket(const std::string& pPkt);
 
-	NetworkManager::Ptr mpNetMgrSync;
+	UDPManager::Ptr mpNetMgrSync;
 	FileManager::Ptr mpFileMgr;
 	ReadWriteLock::Ptr mpRdWrtLock;
 	ConfigManager* mpCfgMgr;

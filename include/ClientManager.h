@@ -15,7 +15,7 @@
 
 using namespace util;
 class Protocol;
-class ClientManager : public NetworkListener, public TimerListener, public std::enable_shared_from_this<ClientManager>
+class ClientManager : public UDPListener, public TimerListener, public std::enable_shared_from_this<ClientManager>
 {
 public:
 	typedef std::shared_ptr<ClientManager> Ptr;
@@ -32,7 +32,7 @@ public:
 	void init() { mpNetMagr = std::make_shared<UDPManager>(getNetListenerPtr(), mpCfgMgr->getBPort()); }
 	virtual ~ClientManager() {}
 
-	NetworkListener::Ptr getNetListenerPtr() { return shared_from_this(); }
+	UDPListener::Ptr getNetListenerPtr() { return shared_from_this(); }
 	void handleClientCmd(std::string strHost, std::string strPkt) {}
 
 	bool onNetPacket(const struct sockaddr *pClientAddr, const std::string& pPkt);

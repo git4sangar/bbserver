@@ -15,7 +15,7 @@
 using namespace util;
 
 class StateMachine;
-class Protocol : public NetworkListener, public TimerListener, public std::enable_shared_from_this<Protocol>
+class Protocol : public UDPListener, public TimerListener, public std::enable_shared_from_this<Protocol>
 {
 public:
 	typedef std::shared_ptr<Protocol> Ptr;
@@ -58,7 +58,7 @@ public:
 	}
 	void clearAll();
 
-	NetworkListener::Ptr getNetListenerPtr() { return shared_from_this(); }
+	UDPListener::Ptr getNetListenerPtr() { return shared_from_this(); }
 	Protocol::Ptr getSharePtr() { return shared_from_this(); }
 
 private:

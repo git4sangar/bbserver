@@ -14,18 +14,25 @@
 #include "Constants.h"
 #include "Timer.h"
 #include "ThreadPool.h"
-#include "NetworkListener.h"
 
 #define BUFFSIZE 			(10*1024)
 #define GARBAGE_TIMEOUT_SEC (60)
 
 namespace util {
+	class UDPListener {
+	public:
+		typedef std::shared_ptr<UDPListener> Ptr;
+		UDPListener() {}
+		~UDPListener() {}
+		virtual bool onNetPacket(const struct sockaddr *pClientAddr, const std::string& pPkt) = 0;
+	};
+
 	class UDPManager : public TimerListener, public std::enable_shared_from_this<UDPManager>
 	{
 	public:
 		typedef std::shared_ptr<UDPManager> Ptr;
 
-		UDPManager(NetworkListener::Ptr pListener, unsigned int pPort)
+		UDPManager(UDPListener::Ptr pListener, unsigned int pPort)
 			: mpListener{ pListener }
 			, mPort {pPort}
 			, mLogger{ Logger::getInstance() }
@@ -45,7 +52,7 @@ namespace util {
 		TimerListener::Ptr getTimerListener() { return shared_from_this(); }
 
 	private:
-		NetworkListener::Ptr mpListener;
+		UDPListener::Ptr mpListener;
 		unsigned int mPort;
 		Logger& mLogger;
 		Timer* mpTimer;

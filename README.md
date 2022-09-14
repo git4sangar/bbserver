@@ -7,10 +7,14 @@ Install the dependencies and devDependencies and start the server.
 ```sh
 clone the repository
 cd bbserver
-mkdir build
-cd build
-cmake ..
 make
+```
+
+## Bulding TCP Client
+Build the client as follows
+```sh
+g++ TCPClient.cpp -o TCPClient -lpthread -std=c++17
+./TCPClient ip-address port
 ```
 
 ## How to run

@@ -59,7 +59,7 @@ StateMachine* IdleState::onPrecommit(const struct sockaddr *pClientAddr) {
 }
 
 StateMachine* ServerPrecommitState::onNegativeAckOrTimeout() {
-	mLogger << std::endl << MODULE_NAME << "--- ServerPrecommitState::onNegativeAckOrTimeout ---&&&" << std::endl;
+	mLogger << std::endl << MODULE_NAME << "--- ServerPrecommitState::onNegativeAckOrTimeout ---" << std::endl;
 	mLogger << MODULE_NAME << "Brd Msg, Wrt Resp, Rel Lk" << std::endl;
 	mpProtocol->broadcastMessage(ABORT);
 	mpProtocol->sendWriteResponse("3.2 ERROR WRITE Peers negative ack or timedout");
@@ -90,7 +90,7 @@ StateMachine* ServerCommitState::onAllSuccess(size_t pMsgNo) {
 	mLogger << MODULE_NAME << "Rmv Tmr, Brd Msg, Wrt Resp, Rel Lk" << std::endl;
 	mpProtocol->removeActiveTimer();
 	mpProtocol->broadcastMessage(SUCCESSFUL);
-	mpProtocol->sendWriteResponse("WROTE", pMsgNo);
+	mpProtocol->sendWriteResponse(std::string("3.0 WROTE ") + std::to_string(pMsgNo), pMsgNo);
 	mpProtocol->releaseWriteLock();
 	return IdleState::getInstance(mpProtocol);
 }
@@ -100,7 +100,7 @@ StateMachine* ServerCommitState::onFailure() {
 	mLogger << MODULE_NAME << "Rmv Tmr, Brd Msg, Wrt Resp, Rel Lk" << std::endl;
 	mpProtocol->removeActiveTimer();
 	mpProtocol->broadcastMessage(UNSUCCESSFUL);
-	mpProtocol->sendWriteResponse("3.2 ERROR WRITE Peers write failed");
+	mpProtocol->sendWriteResponse("3.1 UNKNOWN ");
 	mpProtocol->releaseWriteLock();
 	return IdleState::getInstance(mpProtocol);
 }

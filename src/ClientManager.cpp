@@ -117,6 +117,7 @@ bool ClientManager::onNetPacket(int32_t connfd, const std::string& pPkt) {
 	else if (pPkt.find(WRITE) == 0 && checkLength(pPkt, WRITE)) strResp = handleWriteCmd(connfd, pPkt);
 	else if (pPkt.find(REPLACE) == 0 && checkLength(pPkt, REPLACE)) strResp = handleReplaceCmd(connfd, pPkt);
 	else if (pPkt.find(QUIT) == 0) strResp = std::string("4.0 BYE ") + mHost2UserMap[connfd];
+	else strResp = "UNKNOWN command";
 
 	write(connfd, strResp.c_str(), strResp.length());
 	mLogger << MODULE_NAME << "onNetPacket Response : " << strResp << std::endl;

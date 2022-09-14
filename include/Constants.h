@@ -29,6 +29,7 @@ extern std::string READ;
 extern std::string WRITE;
 extern std::string REPLACE;
 extern std::string QUIT;
+extern std::string SELFQUIT;
 
 extern std::string ALPHA_CAPS;
 extern std::string ALPHA_SMALL;

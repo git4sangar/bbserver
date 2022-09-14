@@ -18,6 +18,7 @@ std::string READ = "READ";
 std::string WRITE = "WRITE";
 std::string REPLACE = "REPLACE";
 std::string QUIT = "QUIT";
+std::string SELFQUIT = "SELFQUIT";
 
 std::string ALPHA_CAPS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 std::string ALPHA_SMALL = "abcdefghijklmnopqrstuvwxyz";

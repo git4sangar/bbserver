@@ -88,6 +88,7 @@ void Protocol::sendMessageToPeer(const struct sockaddr *pClientAddr, const std::
 	const struct sockaddr_in *pClientAddrIn = (const struct sockaddr_in *)pClientAddr;
 	std::string strHost(inet_ntoa(pClientAddrIn->sin_addr));
 
+	usleep(1000 * 10);
 	mpNetMgrSync->sendPacket(strHost, pClientAddrIn->sin_port, pMsg);
 	/*for(const auto& [host, port] : mpCfgMgr->getPeers()) {
 		if(strHost == host) mpNetMgrSync->sendPacket(strHost, port, pMsg);

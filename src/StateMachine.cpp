@@ -115,6 +115,7 @@ StateMachine* ClientPrecommitState::onCommit(const struct sockaddr *pClientAddr)
 		return ClientCommitState::getInstance(mpProtocol);
 	}
 	mpProtocol->sendMessageToPeer(pClientAddr, UNSUCCESS);
+	mpProtocol->releaseWriteLock();
 	return IdleState::getInstance(mpProtocol);
 }
 

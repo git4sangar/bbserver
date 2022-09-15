@@ -1,7 +1,7 @@
 //sgn
 #include <iostream>
 #include <thread>
-
+#include <unistd.h>
 
 #include "Protocol.h"
 #include "Constants.h"
@@ -44,8 +44,8 @@ StateMachine* IdleState::onWriteRequest() {
 	mLogger << std::endl << MODULE_NAME << "--- IdleState::onWriteRequest ---" << std::endl;
 	mLogger << MODULE_NAME << "Acq Lk, Brd Msg, Add Tmr" << std::endl;
 	mpProtocol->grabWriteLock();
-	mpProtocol->addToTimer();
 	mpProtocol->broadcastMessage(PRECOMMIT);
+	mpProtocol->addToTimer();
 	return ServerPrecommitState::getInstance(mpProtocol);
 }
 
@@ -53,8 +53,9 @@ StateMachine* IdleState::onPrecommit(const struct sockaddr *pClientAddr) {
 	mLogger << std::endl << MODULE_NAME << "--- IdleState::onPrecommit ---" << std::endl;
 	mLogger << MODULE_NAME << "Acq Lk, Add Tmr, Snd +Ak" << std::endl;
 	mpProtocol->grabWriteLock();
-	mpProtocol->addToTimer();
+	usleep(1000 * 100);
 	mpProtocol->sendMessageToPeer(pClientAddr, POSITIVE_ACK);
+	mpProtocol->addToTimer();
 	return ClientPrecommitState::getInstance(mpProtocol);
 }
 
@@ -71,8 +72,9 @@ StateMachine* ServerPrecommitState::onAllAck() {
 	mLogger << std::endl << MODULE_NAME << "--- ServerPrecommitState::onAllAck ---" << std::endl;
 	mLogger << MODULE_NAME << "Rmv Tmr, Brd Msg, Add Tmr" << std::endl;
 	mpProtocol->removeActiveTimer();
-	mpProtocol->addToTimer();
+	usleep(1000 * 100);
 	mpProtocol->broadcastMessage(COMMIT);
+	mpProtocol->addToTimer();
 	return ServerCommitState::getInstance(mpProtocol);;
 }
 
@@ -110,10 +112,12 @@ StateMachine* ClientPrecommitState::onCommit(const struct sockaddr *pClientAddr)
 	mLogger << MODULE_NAME << "Rmv Tmr, Wrt Msg, Brd Msg, Add Tmr" << std::endl;
 	mpProtocol->removeActiveTimer();
 	if(mpProtocol->writeOrReplaceMsg() > 0) {
-		mpProtocol->addToTimer();
+		usleep(1000 * 100);
 		mpProtocol->sendMessageToPeer(pClientAddr, SUCCESS);
+		mpProtocol->addToTimer();
 		return ClientCommitState::getInstance(mpProtocol);
 	}
+	usleep(1000 * 100);
 	mpProtocol->sendMessageToPeer(pClientAddr, UNSUCCESS);
 	mpProtocol->releaseWriteLock();
 	return IdleState::getInstance(mpProtocol);

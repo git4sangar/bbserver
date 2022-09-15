@@ -124,13 +124,13 @@ namespace util {
 		if (ss.str().length() == posAndLen.second) {
 			mLogger << MODULE_NAME << "Replace : Exising and New Line are equal in length" << std::endl;
 			writeAtPos(posAndLen.first, std::ios::beg, ss.str());
-		} /*else if (ss.str().length() < posAndLen.second) {
+		} else if (ss.str().length() < posAndLen.second) {
 			mLogger << MODULE_NAME << "Replace : New Line < Existing Line" << std::endl;
 			std::string strPad(posAndLen.second - ss.str().length(), ' ');
 			ss.str(""); ss << pMsgNo << "/" << pSender << "/" << pMsg << strPad << std::endl;
 			writeAtPos(posAndLen.first, std::ios::beg, ss.str());
-			mFileIndices[pMsgNo].second = ss.str().length();
-		}*/ else {
+			mFileIndices[pMsgNo].second = ss.str().length() - strPad.length();
+		} else {
 			mLogger << MODULE_NAME << "Replace : Existing Line != New Line" << std::endl;
 			writeDummyAtPos(posAndLen.first, posAndLen.second);
 			size_t ulLineStart = moveToEOF();

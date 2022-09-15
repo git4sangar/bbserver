@@ -52,7 +52,7 @@ namespace util {
 			if (ulMsgNo > mLastMsgNo) mLastMsgNo = ulMsgNo;
 
 			size_t ulLen = strLine.length();
-			auto posAndLen = std::make_pair(ulLineStart, ulLen);
+			auto posAndLen = std::make_pair(ulLineStart, ulLen + 1); // include \n len
 
 			mFileIndices.insert({ulMsgNo, posAndLen});
 			uiNoOfLines++;
@@ -73,11 +73,11 @@ namespace util {
 			mBBFile.read(pBuffer, posAndLen.second);
 			mAccessLock.unlock();
 
-			pBuffer[posAndLen.second] = '\0';
+			pBuffer[posAndLen.second-1] = '\0'; // omit \n while reading
 			strLine = pBuffer;
 			delete[] pBuffer;
 
-			mLogger << MODULE_NAME << "Read line " << strLine << std::endl;
+			mLogger << MODULE_NAME << "Pos " << posAndLen.first << ", Len " << posAndLen.second << ", Line " << strLine << std::endl;
 		} else {
 			mLogger << MODULE_NAME << "Read failed as Msg no " << pMsgNo << " does not exist" << std::endl;
 		}
@@ -100,7 +100,7 @@ namespace util {
 		auto posAndLen = std::make_pair(ulLineStart, ss.str().length());
 		mFileIndices.insert({ mLastMsgNo, posAndLen });
 
-		mLogger << MODULE_NAME << "Wrote msg no " << mLastMsgNo << " with content " << ss.str() << std::endl;
+		mLogger << MODULE_NAME << "Wrote msg no " << mLastMsgNo << " with content " << ss.str() << " and len " << ss.str().length() << std::endl;
 		return mLastMsgNo;
 	}
 
@@ -108,6 +108,7 @@ namespace util {
 		if (mLastWrittenLen < MIN_MSG_LENGTH) return false;
 		mLogger << MODULE_NAME << "Undo last written msg" << std::endl;
 		writeDummyAtPos(mLastWrittenPos, mLastWrittenLen);
+		mFileIndices.erase(mLastMsgNo);
 		mLastMsgNo--;
 
 		return true;
@@ -123,15 +124,15 @@ namespace util {
 		if (ss.str().length() == posAndLen.second) {
 			mLogger << MODULE_NAME << "Replace : Exising and New Line are equal in length" << std::endl;
 			writeAtPos(posAndLen.first, std::ios::beg, ss.str());
-		} else if (ss.str().length() < posAndLen.second) {
+		} /*else if (ss.str().length() < posAndLen.second) {
 			mLogger << MODULE_NAME << "Replace : New Line < Existing Line" << std::endl;
 			std::string strPad(posAndLen.second - ss.str().length(), ' ');
-			ss.str("");  ss << pMsgNo << "/" << pSender << "/" << pMsg << strPad << std::endl;
+			ss.str(""); ss << pMsgNo << "/" << pSender << "/" << pMsg << strPad << std::endl;
 			writeAtPos(posAndLen.first, std::ios::beg, ss.str());
 			mFileIndices[pMsgNo].second = ss.str().length();
-		} else {
-			mLogger << MODULE_NAME << "Replace : Existing Line < New Line" << std::endl;
-			writeDummyAtPos(posAndLen.first, posAndLen.second-1); // Don't overwrite the newline chart at the end
+		}*/ else {
+			mLogger << MODULE_NAME << "Replace : Existing Line != New Line" << std::endl;
+			writeDummyAtPos(posAndLen.first, posAndLen.second);
 			size_t ulLineStart = moveToEOF();
 			writeAtPos(ulLineStart, std::ios::beg, ss.str());
 			mFileIndices[pMsgNo].first = ulLineStart;
@@ -161,7 +162,7 @@ namespace util {
 
 	void FileManager::writeDummyAtPos(size_t pPos, size_t pLen) {
 		if (pLen > MIN_MSG_LENGTH) {
-			std::string strDummy(pLen, '0');
+			std::string strDummy(pLen-1, '0'); // don't overwirte the \n
 			strDummy[1] = '/';
 			strDummy[3] = '/';
 			writeAtPos(pPos, std::ios::beg, strDummy);

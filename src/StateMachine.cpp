@@ -109,11 +109,13 @@ StateMachine* ClientPrecommitState::onCommit(const struct sockaddr *pClientAddr)
 	mLogger << std::endl << MODULE_NAME << "--- ClientPrecommitState::onCommit ---" << std::endl;
 	mLogger << MODULE_NAME << "Rmv Tmr, Wrt Msg, Brd Msg, Add Tmr" << std::endl;
 	mpProtocol->removeActiveTimer();
-	mpProtocol->addToTimer();
-	(mpProtocol->writeOrReplaceMsg() > 0)
-		? mpProtocol->sendMessageToPeer(pClientAddr, SUCCESS)
-		: mpProtocol->sendMessageToPeer(pClientAddr, UNSUCCESS);
-	return ClientCommitState::getInstance(mpProtocol);
+	if(mpProtocol->writeOrReplaceMsg() > 0) {
+		mpProtocol->addToTimer();
+		mpProtocol->sendMessageToPeer(pClientAddr, SUCCESS);
+		return ClientCommitState::getInstance(mpProtocol);
+	}
+	mpProtocol->sendMessageToPeer(pClientAddr, UNSUCCESS);
+	return IdleState::getInstance(mpProtocol);
 }
 
 StateMachine* ClientPrecommitState::onAbort(const struct sockaddr *pClientAddr) {

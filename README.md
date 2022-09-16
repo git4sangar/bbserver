@@ -9,12 +9,13 @@ clone the repository
 cd bbserver
 cmake .
 make
-(Compilations start and BBServer gets built which you can use in "How to run" section below)
+(Compilation starts and BBServer gets built in the same folder which you can use in "How to run" section below)
 ```
 
 ## Bulding TCP Client
 Build the client as follows
 ```sh
+cd test
 g++ TCPClient.cpp -o TCPClient -lpthread -std=c++17
 ./TCPClient ip-address port
 ```

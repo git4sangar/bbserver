@@ -44,8 +44,10 @@ int main(int argc, char *argv[]) {
         if(std::string(buf).find("BYE") != std::string::npos) break;
 
         recvd = 0;
-        while ((buf[recvd] = getchar()) != '\n') recvd++;
-        buf[recvd] = '\0';
+        while(recvd == 0) {
+            while ((buf[recvd] = getchar()) != '\n') recvd++;
+            buf[recvd] = '\0';
+        }
 
         write(sockfd, buf, recvd);
     }

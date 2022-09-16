@@ -9,6 +9,7 @@ clone the repository
 cd bbserver
 cmake .
 make
+(Compilations start and BBServer gets built which you can use in "How to run" section below)
 ```
 
 ## Bulding TCP Client
@@ -32,5 +33,5 @@ cd ../test_03
 
 cd ..
 g++ TCPClient.cpp -o TCPClient -lpthread -std=c++17
-./TCPClient ip-address 3200
+./TCPClient localhost 3200
 ```

@@ -129,269 +129,245 @@ BBServer/fast:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/BBServer.dir/build.make CMakeFiles/BBServer.dir/build
 .PHONY : BBServer/fast
 
-src/ClientManager.o: src/ClientManager.cpp.o
-.PHONY : src/ClientManager.o
+ClientManager.o: ClientManager.cpp.o
+.PHONY : ClientManager.o
 
 # target to build an object file
-src/ClientManager.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/BBServer.dir/build.make CMakeFiles/BBServer.dir/src/ClientManager.cpp.o
-.PHONY : src/ClientManager.cpp.o
+ClientManager.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/BBServer.dir/build.make CMakeFiles/BBServer.dir/ClientManager.cpp.o
+.PHONY : ClientManager.cpp.o
 
-src/ClientManager.i: src/ClientManager.cpp.i
-.PHONY : src/ClientManager.i
+ClientManager.i: ClientManager.cpp.i
+.PHONY : ClientManager.i
 
 # target to preprocess a source file
-src/ClientManager.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/BBServer.dir/build.make CMakeFiles/BBServer.dir/src/ClientManager.cpp.i
-.PHONY : src/ClientManager.cpp.i
+ClientManager.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/BBServer.dir/build.make CMakeFiles/BBServer.dir/ClientManager.cpp.i
+.PHONY : ClientManager.cpp.i
 
-src/ClientManager.s: src/ClientManager.cpp.s
-.PHONY : src/ClientManager.s
+ClientManager.s: ClientManager.cpp.s
+.PHONY : ClientManager.s
 
 # target to generate assembly for a file
-src/ClientManager.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/BBServer.dir/build.make CMakeFiles/BBServer.dir/src/ClientManager.cpp.s
-.PHONY : src/ClientManager.cpp.s
+ClientManager.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/BBServer.dir/build.make CMakeFiles/BBServer.dir/ClientManager.cpp.s
+.PHONY : ClientManager.cpp.s
 
-src/ConfigManager.o: src/ConfigManager.cpp.o
-.PHONY : src/ConfigManager.o
+ConfigManager.o: ConfigManager.cpp.o
+.PHONY : ConfigManager.o
 
 # target to build an object file
-src/ConfigManager.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/BBServer.dir/build.make CMakeFiles/BBServer.dir/src/ConfigManager.cpp.o
-.PHONY : src/ConfigManager.cpp.o
+ConfigManager.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/BBServer.dir/build.make CMakeFiles/BBServer.dir/ConfigManager.cpp.o
+.PHONY : ConfigManager.cpp.o
 
-src/ConfigManager.i: src/ConfigManager.cpp.i
-.PHONY : src/ConfigManager.i
+ConfigManager.i: ConfigManager.cpp.i
+.PHONY : ConfigManager.i
 
 # target to preprocess a source file
-src/ConfigManager.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/BBServer.dir/build.make CMakeFiles/BBServer.dir/src/ConfigManager.cpp.i
-.PHONY : src/ConfigManager.cpp.i
+ConfigManager.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/BBServer.dir/build.make CMakeFiles/BBServer.dir/ConfigManager.cpp.i
+.PHONY : ConfigManager.cpp.i
 
-src/ConfigManager.s: src/ConfigManager.cpp.s
-.PHONY : src/ConfigManager.s
+ConfigManager.s: ConfigManager.cpp.s
+.PHONY : ConfigManager.s
 
 # target to generate assembly for a file
-src/ConfigManager.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/BBServer.dir/build.make CMakeFiles/BBServer.dir/src/ConfigManager.cpp.s
-.PHONY : src/ConfigManager.cpp.s
+ConfigManager.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/BBServer.dir/build.make CMakeFiles/BBServer.dir/ConfigManager.cpp.s
+.PHONY : ConfigManager.cpp.s
 
-src/Constants.o: src/Constants.cpp.o
-.PHONY : src/Constants.o
+Constants.o: Constants.cpp.o
+.PHONY : Constants.o
 
 # target to build an object file
-src/Constants.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/BBServer.dir/build.make CMakeFiles/BBServer.dir/src/Constants.cpp.o
-.PHONY : src/Constants.cpp.o
+Constants.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/BBServer.dir/build.make CMakeFiles/BBServer.dir/Constants.cpp.o
+.PHONY : Constants.cpp.o
 
-src/Constants.i: src/Constants.cpp.i
-.PHONY : src/Constants.i
+Constants.i: Constants.cpp.i
+.PHONY : Constants.i
 
 # target to preprocess a source file
-src/Constants.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/BBServer.dir/build.make CMakeFiles/BBServer.dir/src/Constants.cpp.i
-.PHONY : src/Constants.cpp.i
+Constants.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/BBServer.dir/build.make CMakeFiles/BBServer.dir/Constants.cpp.i
+.PHONY : Constants.cpp.i
 
-src/Constants.s: src/Constants.cpp.s
-.PHONY : src/Constants.s
+Constants.s: Constants.cpp.s
+.PHONY : Constants.s
 
 # target to generate assembly for a file
-src/Constants.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/BBServer.dir/build.make CMakeFiles/BBServer.dir/src/Constants.cpp.s
-.PHONY : src/Constants.cpp.s
+Constants.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/BBServer.dir/build.make CMakeFiles/BBServer.dir/Constants.cpp.s
+.PHONY : Constants.cpp.s
 
-src/FileLogger.o: src/FileLogger.cpp.o
-.PHONY : src/FileLogger.o
+FileLogger.o: FileLogger.cpp.o
+.PHONY : FileLogger.o
 
 # target to build an object file
-src/FileLogger.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/BBServer.dir/build.make CMakeFiles/BBServer.dir/src/FileLogger.cpp.o
-.PHONY : src/FileLogger.cpp.o
+FileLogger.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/BBServer.dir/build.make CMakeFiles/BBServer.dir/FileLogger.cpp.o
+.PHONY : FileLogger.cpp.o
 
-src/FileLogger.i: src/FileLogger.cpp.i
-.PHONY : src/FileLogger.i
+FileLogger.i: FileLogger.cpp.i
+.PHONY : FileLogger.i
 
 # target to preprocess a source file
-src/FileLogger.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/BBServer.dir/build.make CMakeFiles/BBServer.dir/src/FileLogger.cpp.i
-.PHONY : src/FileLogger.cpp.i
+FileLogger.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/BBServer.dir/build.make CMakeFiles/BBServer.dir/FileLogger.cpp.i
+.PHONY : FileLogger.cpp.i
 
-src/FileLogger.s: src/FileLogger.cpp.s
-.PHONY : src/FileLogger.s
+FileLogger.s: FileLogger.cpp.s
+.PHONY : FileLogger.s
 
 # target to generate assembly for a file
-src/FileLogger.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/BBServer.dir/build.make CMakeFiles/BBServer.dir/src/FileLogger.cpp.s
-.PHONY : src/FileLogger.cpp.s
+FileLogger.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/BBServer.dir/build.make CMakeFiles/BBServer.dir/FileLogger.cpp.s
+.PHONY : FileLogger.cpp.s
 
-src/FileManager.o: src/FileManager.cpp.o
-.PHONY : src/FileManager.o
+FileManager.o: FileManager.cpp.o
+.PHONY : FileManager.o
 
 # target to build an object file
-src/FileManager.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/BBServer.dir/build.make CMakeFiles/BBServer.dir/src/FileManager.cpp.o
-.PHONY : src/FileManager.cpp.o
+FileManager.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/BBServer.dir/build.make CMakeFiles/BBServer.dir/FileManager.cpp.o
+.PHONY : FileManager.cpp.o
 
-src/FileManager.i: src/FileManager.cpp.i
-.PHONY : src/FileManager.i
+FileManager.i: FileManager.cpp.i
+.PHONY : FileManager.i
 
 # target to preprocess a source file
-src/FileManager.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/BBServer.dir/build.make CMakeFiles/BBServer.dir/src/FileManager.cpp.i
-.PHONY : src/FileManager.cpp.i
+FileManager.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/BBServer.dir/build.make CMakeFiles/BBServer.dir/FileManager.cpp.i
+.PHONY : FileManager.cpp.i
 
-src/FileManager.s: src/FileManager.cpp.s
-.PHONY : src/FileManager.s
+FileManager.s: FileManager.cpp.s
+.PHONY : FileManager.s
 
 # target to generate assembly for a file
-src/FileManager.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/BBServer.dir/build.make CMakeFiles/BBServer.dir/src/FileManager.cpp.s
-.PHONY : src/FileManager.cpp.s
+FileManager.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/BBServer.dir/build.make CMakeFiles/BBServer.dir/FileManager.cpp.s
+.PHONY : FileManager.cpp.s
 
-src/Protocol.o: src/Protocol.cpp.o
-.PHONY : src/Protocol.o
+Protocol.o: Protocol.cpp.o
+.PHONY : Protocol.o
 
 # target to build an object file
-src/Protocol.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/BBServer.dir/build.make CMakeFiles/BBServer.dir/src/Protocol.cpp.o
-.PHONY : src/Protocol.cpp.o
+Protocol.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/BBServer.dir/build.make CMakeFiles/BBServer.dir/Protocol.cpp.o
+.PHONY : Protocol.cpp.o
 
-src/Protocol.i: src/Protocol.cpp.i
-.PHONY : src/Protocol.i
+Protocol.i: Protocol.cpp.i
+.PHONY : Protocol.i
 
 # target to preprocess a source file
-src/Protocol.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/BBServer.dir/build.make CMakeFiles/BBServer.dir/src/Protocol.cpp.i
-.PHONY : src/Protocol.cpp.i
+Protocol.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/BBServer.dir/build.make CMakeFiles/BBServer.dir/Protocol.cpp.i
+.PHONY : Protocol.cpp.i
 
-src/Protocol.s: src/Protocol.cpp.s
-.PHONY : src/Protocol.s
+Protocol.s: Protocol.cpp.s
+.PHONY : Protocol.s
 
 # target to generate assembly for a file
-src/Protocol.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/BBServer.dir/build.make CMakeFiles/BBServer.dir/src/Protocol.cpp.s
-.PHONY : src/Protocol.cpp.s
+Protocol.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/BBServer.dir/build.make CMakeFiles/BBServer.dir/Protocol.cpp.s
+.PHONY : Protocol.cpp.s
 
-src/SGNServer_01.o: src/SGNServer_01.cpp.o
-.PHONY : src/SGNServer_01.o
+SGNServer_01.o: SGNServer_01.cpp.o
+.PHONY : SGNServer_01.o
 
 # target to build an object file
-src/SGNServer_01.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/BBServer.dir/build.make CMakeFiles/BBServer.dir/src/SGNServer_01.cpp.o
-.PHONY : src/SGNServer_01.cpp.o
+SGNServer_01.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/BBServer.dir/build.make CMakeFiles/BBServer.dir/SGNServer_01.cpp.o
+.PHONY : SGNServer_01.cpp.o
 
-src/SGNServer_01.i: src/SGNServer_01.cpp.i
-.PHONY : src/SGNServer_01.i
+SGNServer_01.i: SGNServer_01.cpp.i
+.PHONY : SGNServer_01.i
 
 # target to preprocess a source file
-src/SGNServer_01.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/BBServer.dir/build.make CMakeFiles/BBServer.dir/src/SGNServer_01.cpp.i
-.PHONY : src/SGNServer_01.cpp.i
+SGNServer_01.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/BBServer.dir/build.make CMakeFiles/BBServer.dir/SGNServer_01.cpp.i
+.PHONY : SGNServer_01.cpp.i
 
-src/SGNServer_01.s: src/SGNServer_01.cpp.s
-.PHONY : src/SGNServer_01.s
+SGNServer_01.s: SGNServer_01.cpp.s
+.PHONY : SGNServer_01.s
 
 # target to generate assembly for a file
-src/SGNServer_01.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/BBServer.dir/build.make CMakeFiles/BBServer.dir/src/SGNServer_01.cpp.s
-.PHONY : src/SGNServer_01.cpp.s
+SGNServer_01.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/BBServer.dir/build.make CMakeFiles/BBServer.dir/SGNServer_01.cpp.s
+.PHONY : SGNServer_01.cpp.s
 
-src/StateMachine.o: src/StateMachine.cpp.o
-.PHONY : src/StateMachine.o
+StateMachine.o: StateMachine.cpp.o
+.PHONY : StateMachine.o
 
 # target to build an object file
-src/StateMachine.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/BBServer.dir/build.make CMakeFiles/BBServer.dir/src/StateMachine.cpp.o
-.PHONY : src/StateMachine.cpp.o
+StateMachine.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/BBServer.dir/build.make CMakeFiles/BBServer.dir/StateMachine.cpp.o
+.PHONY : StateMachine.cpp.o
 
-src/StateMachine.i: src/StateMachine.cpp.i
-.PHONY : src/StateMachine.i
+StateMachine.i: StateMachine.cpp.i
+.PHONY : StateMachine.i
 
 # target to preprocess a source file
-src/StateMachine.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/BBServer.dir/build.make CMakeFiles/BBServer.dir/src/StateMachine.cpp.i
-.PHONY : src/StateMachine.cpp.i
+StateMachine.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/BBServer.dir/build.make CMakeFiles/BBServer.dir/StateMachine.cpp.i
+.PHONY : StateMachine.cpp.i
 
-src/StateMachine.s: src/StateMachine.cpp.s
-.PHONY : src/StateMachine.s
+StateMachine.s: StateMachine.cpp.s
+.PHONY : StateMachine.s
 
 # target to generate assembly for a file
-src/StateMachine.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/BBServer.dir/build.make CMakeFiles/BBServer.dir/src/StateMachine.cpp.s
-.PHONY : src/StateMachine.cpp.s
+StateMachine.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/BBServer.dir/build.make CMakeFiles/BBServer.dir/StateMachine.cpp.s
+.PHONY : StateMachine.cpp.s
 
-src/TCPManager.o: src/TCPManager.cpp.o
-.PHONY : src/TCPManager.o
+TCPManager.o: TCPManager.cpp.o
+.PHONY : TCPManager.o
 
 # target to build an object file
-src/TCPManager.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/BBServer.dir/build.make CMakeFiles/BBServer.dir/src/TCPManager.cpp.o
-.PHONY : src/TCPManager.cpp.o
+TCPManager.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/BBServer.dir/build.make CMakeFiles/BBServer.dir/TCPManager.cpp.o
+.PHONY : TCPManager.cpp.o
 
-src/TCPManager.i: src/TCPManager.cpp.i
-.PHONY : src/TCPManager.i
+TCPManager.i: TCPManager.cpp.i
+.PHONY : TCPManager.i
 
 # target to preprocess a source file
-src/TCPManager.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/BBServer.dir/build.make CMakeFiles/BBServer.dir/src/TCPManager.cpp.i
-.PHONY : src/TCPManager.cpp.i
+TCPManager.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/BBServer.dir/build.make CMakeFiles/BBServer.dir/TCPManager.cpp.i
+.PHONY : TCPManager.cpp.i
 
-src/TCPManager.s: src/TCPManager.cpp.s
-.PHONY : src/TCPManager.s
+TCPManager.s: TCPManager.cpp.s
+.PHONY : TCPManager.s
 
 # target to generate assembly for a file
-src/TCPManager.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/BBServer.dir/build.make CMakeFiles/BBServer.dir/src/TCPManager.cpp.s
-.PHONY : src/TCPManager.cpp.s
+TCPManager.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/BBServer.dir/build.make CMakeFiles/BBServer.dir/TCPManager.cpp.s
+.PHONY : TCPManager.cpp.s
 
-src/Timer.o: src/Timer.cpp.o
-.PHONY : src/Timer.o
+Timer.o: Timer.cpp.o
+.PHONY : Timer.o
 
 # target to build an object file
-src/Timer.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/BBServer.dir/build.make CMakeFiles/BBServer.dir/src/Timer.cpp.o
-.PHONY : src/Timer.cpp.o
+Timer.cpp.o:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/BBServer.dir/build.make CMakeFiles/BBServer.dir/Timer.cpp.o
+.PHONY : Timer.cpp.o
 
-src/Timer.i: src/Timer.cpp.i
-.PHONY : src/Timer.i
-
-# target to preprocess a source file
-src/Timer.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/BBServer.dir/build.make CMakeFiles/BBServer.dir/src/Timer.cpp.i
-.PHONY : src/Timer.cpp.i
-
-src/Timer.s: src/Timer.cpp.s
-.PHONY : src/Timer.s
-
-# target to generate assembly for a file
-src/Timer.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/BBServer.dir/build.make CMakeFiles/BBServer.dir/src/Timer.cpp.s
-.PHONY : src/Timer.cpp.s
-
-src/UDPManager.o: src/UDPManager.cpp.o
-.PHONY : src/UDPManager.o
-
-# target to build an object file
-src/UDPManager.cpp.o:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/BBServer.dir/build.make CMakeFiles/BBServer.dir/src/UDPManager.cpp.o
-.PHONY : src/UDPManager.cpp.o
-
-src/UDPManager.i: src/UDPManager.cpp.i
-.PHONY : src/UDPManager.i
+Timer.i: Timer.cpp.i
+.PHONY : Timer.i
 
 # target to preprocess a source file
-src/UDPManager.cpp.i:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/BBServer.dir/build.make CMakeFiles/BBServer.dir/src/UDPManager.cpp.i
-.PHONY : src/UDPManager.cpp.i
+Timer.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/BBServer.dir/build.make CMakeFiles/BBServer.dir/Timer.cpp.i
+.PHONY : Timer.cpp.i
 
-src/UDPManager.s: src/UDPManager.cpp.s
-.PHONY : src/UDPManager.s
+Timer.s: Timer.cpp.s
+.PHONY : Timer.s
 
 # target to generate assembly for a file
-src/UDPManager.cpp.s:
-	$(MAKE) $(MAKESILENT) -f CMakeFiles/BBServer.dir/build.make CMakeFiles/BBServer.dir/src/UDPManager.cpp.s
-.PHONY : src/UDPManager.cpp.s
+Timer.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/BBServer.dir/build.make CMakeFiles/BBServer.dir/Timer.cpp.s
+.PHONY : Timer.cpp.s
 
 # Help Target
 help:
@@ -402,39 +378,36 @@ help:
 	@echo "... edit_cache"
 	@echo "... rebuild_cache"
 	@echo "... BBServer"
-	@echo "... src/ClientManager.o"
-	@echo "... src/ClientManager.i"
-	@echo "... src/ClientManager.s"
-	@echo "... src/ConfigManager.o"
-	@echo "... src/ConfigManager.i"
-	@echo "... src/ConfigManager.s"
-	@echo "... src/Constants.o"
-	@echo "... src/Constants.i"
-	@echo "... src/Constants.s"
-	@echo "... src/FileLogger.o"
-	@echo "... src/FileLogger.i"
-	@echo "... src/FileLogger.s"
-	@echo "... src/FileManager.o"
-	@echo "... src/FileManager.i"
-	@echo "... src/FileManager.s"
-	@echo "... src/Protocol.o"
-	@echo "... src/Protocol.i"
-	@echo "... src/Protocol.s"
-	@echo "... src/SGNServer_01.o"
-	@echo "... src/SGNServer_01.i"
-	@echo "... src/SGNServer_01.s"
-	@echo "... src/StateMachine.o"
-	@echo "... src/StateMachine.i"
-	@echo "... src/StateMachine.s"
-	@echo "... src/TCPManager.o"
-	@echo "... src/TCPManager.i"
-	@echo "... src/TCPManager.s"
-	@echo "... src/Timer.o"
-	@echo "... src/Timer.i"
-	@echo "... src/Timer.s"
-	@echo "... src/UDPManager.o"
-	@echo "... src/UDPManager.i"
-	@echo "... src/UDPManager.s"
+	@echo "... ClientManager.o"
+	@echo "... ClientManager.i"
+	@echo "... ClientManager.s"
+	@echo "... ConfigManager.o"
+	@echo "... ConfigManager.i"
+	@echo "... ConfigManager.s"
+	@echo "... Constants.o"
+	@echo "... Constants.i"
+	@echo "... Constants.s"
+	@echo "... FileLogger.o"
+	@echo "... FileLogger.i"
+	@echo "... FileLogger.s"
+	@echo "... FileManager.o"
+	@echo "... FileManager.i"
+	@echo "... FileManager.s"
+	@echo "... Protocol.o"
+	@echo "... Protocol.i"
+	@echo "... Protocol.s"
+	@echo "... SGNServer_01.o"
+	@echo "... SGNServer_01.i"
+	@echo "... SGNServer_01.s"
+	@echo "... StateMachine.o"
+	@echo "... StateMachine.i"
+	@echo "... StateMachine.s"
+	@echo "... TCPManager.o"
+	@echo "... TCPManager.i"
+	@echo "... TCPManager.s"
+	@echo "... Timer.o"
+	@echo "... Timer.i"
+	@echo "... Timer.s"
 .PHONY : help
 
 

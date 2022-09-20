@@ -1,0 +1,23 @@
+Logger : Logger Started
+ConfigManager : parsing config file bbserv.conf
+ConfigManager : started parsing config file bbserv.conf
+ConfigManager : BBPORT: 101010, SYNCPORT: 20
+BBFILE: /home/tstone10/sgn/upw/bbserver/bbfile.txt
+DAEMON: 1, DEBUG: 0
+ConfigManager : Peers : 192.168.83.129:101011
+
+My PID 24795
+FileManager : Initializing
+FileManager : Parsed 0 lines
+Timer : Started
+TCPManager : Binding to TCP port 3302 and started to listen
+TCPManager : Binding to TCP port 3202 and started to listen
+--- Started BBServer Successfully ---
+
+ClientManager : on SigHup
+TCPManager : Accepting a connection from 127.0.0.1:59448 New file descriptor 9
+TCPManager : Accepting a connection from 127.0.0.1:59450 New file descriptor 10
+TCPManager : Quitting
+Timer : Invoking timer function with id 0
+Timer : Quitting Timer thread
+FileManager : FileManager closed

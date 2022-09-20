@@ -109,7 +109,7 @@ std::string ClientManager::handleReplaceCmd(int32_t connfd, const std::string& p
 	return "ERROR REPLACE another write/replace in progress";
 }
 
-bool ClientManager::onNetPacket(int32_t connfd, const std::string& pPkt) {
+bool ClientManager::onNetPacket(int32_t connfd, std::string pHost, const std::string& pPkt) {
 	std::string strResp;
 
 	if (pPkt.find(USER) == 0 && checkLength(pPkt, USER)) strResp = handleUserCmd(connfd, pPkt);

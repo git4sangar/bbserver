@@ -29,7 +29,7 @@ Protocol::Protocol(FileManager::Ptr pFileMgr, ReadWriteLock::Ptr pRdWrtLock)
 }
 
 void Protocol::init() {
-	mpNetMgrSync = std::make_shared<UDPManager>(getNetListenerPtr(), mpCfgMgr->getSyncPort());
+	mpNetMgrSync = std::make_shared<TCPManager>(getNetListenerPtr(), mpCfgMgr->getSyncPort());
 	mpCurState = StateMachine::getInstance(States::Idle, getSharePtr());
 }
 
@@ -49,54 +49,43 @@ void Protocol::broadcastMessage(const std::string& pCmd) {
 	}
 }
 
-bool Protocol::onNetPacket(const struct sockaddr *pClientAddr, const std::string& pPkt) {
+bool Protocol::onNetPacket(int32_t connfd, std::string pHost, const std::string& pPkt) {
 	StateMachine* pNewState = nullptr;
+	std::string strPkt(pPkt);
 
-	mLogger << MODULE_NAME << "Got packet " << pPkt << std::endl;
+	if(connfd > 0) write(connfd, QUIT.c_str(), QUIT.length());	// Tear it down, we no more need it
+	uint32_t port = parsePort(strPkt);
+
+	mLogger << MODULE_NAME << "Got packet " << strPkt << std::endl;
 	//	For Server
-	if (pPkt.find(POSITIVE_ACK) == 0 && ++mPositiveAcks == mpCfgMgr->getPeers().size())
+	if (strPkt.find(POSITIVE_ACK) == 0 && ++mPositiveAcks == mpCfgMgr->getPeers().size())
 		pNewState = mpCurState->onAllAck();
-	else if (pPkt.find(SUCCESS) == 0 && ++mSuccessCount == mpCfgMgr->getPeers().size())
+	else if (strPkt.find(SUCCESS) == 0 && ++mSuccessCount == mpCfgMgr->getPeers().size())
 		pNewState = mpCurState->onSuccess();
-	else if (pPkt.find(UNSUCCESS) == 0)
+	else if (strPkt.find(UNSUCCESS) == 0)
 		pNewState = mpCurState->onUnsuccess();
 
 	//	For clients
-	if (pPkt.find(PRECOMMIT) == 0)
-		pNewState = mpCurState->onPrecommit(pClientAddr);
-	else if (pPkt.find(ABORT) == 0)
-		pNewState = mpCurState->onAbort(pClientAddr);
-	else if (pPkt.find(SUCCESSFUL) == 0)
-		pNewState = mpCurState->onSuccessful(pClientAddr);
-	else if (pPkt.find(COMMIT) == 0) {
-		parsePacket(pPkt);
-		pNewState = mpCurState->onCommit(pClientAddr);
+	if (strPkt.find(PRECOMMIT) == 0)
+		pNewState = mpCurState->onPrecommit(pHost, port);
+	else if (strPkt.find(ABORT) == 0)
+		pNewState = mpCurState->onAbort(pHost, port);
+	else if (strPkt.find(SUCCESSFUL) == 0)
+		pNewState = mpCurState->onSuccessful(pHost, port);
+	else if (strPkt.find(COMMIT) == 0) {
+		parseCommitPacket(strPkt);
+		pNewState = mpCurState->onCommit(pHost, port);
 	}
-	else if (pPkt.find(UNSUCCESSFUL) == 0)
-		pNewState = mpCurState->onUnsuccessful(pClientAddr);
+	else if (strPkt.find(UNSUCCESSFUL) == 0)
+		pNewState = mpCurState->onUnsuccessful(pHost, port);
 
 	if (pNewState) {
 		if (pNewState->getStateEnum() == States::Idle) clearAll();
 		mLogger << MODULE_NAME << "--- " << mpCurState->getStateName() << " --> to --> " << pNewState->getStateName() << " ---" << std::endl;
 		mpCurState = pNewState;
-	} else { mLogger << MODULE_NAME << pPkt << " is not relevant for cur state : " << mpCurState->getStateName() << std::endl; }
+	} else { mLogger << MODULE_NAME << strPkt << " is not relevant for cur state : " << mpCurState->getStateName() << std::endl; }
 
 	return true;
-}
-
-void Protocol::sendMessageToPeer(const struct sockaddr *pClientAddr, const std::string& pMsg) {
-	const struct sockaddr_in *pClientAddrIn = (const struct sockaddr_in *)pClientAddr;
-	std::string strHost(inet_ntoa(pClientAddrIn->sin_addr));
-
-	mpNetMgrSync->sendPacket(strHost, pClientAddrIn->sin_port, pMsg);
-	/*for(const auto& [host, port] : mpCfgMgr->getPeers()) {
-		if(strHost == host) mpNetMgrSync->sendPacket(strHost, port, pMsg);
-		else {
-			std::string strIp = mpNetMgrSync->getIpOfHost(host);
-			std::cout << "Got ip address " << strIp << " for host " << host << std::endl;
-			if(strIp == strHost) mpNetMgrSync->sendPacket(strHost, port, pMsg);
-		}
-	}*/
 }
 
 bool Protocol::onWriteOrReplace(int32_t connfd, const std::string& pSender, const std::string& pMsg, size_t pReplaceNo) {
@@ -150,7 +139,7 @@ void Protocol::clearAll() {
 	mSender.clear();
 }
 
-bool Protocol::parsePacket(const std::string& pPkt) {
+bool Protocol::parseCommitPacket(const std::string& pPkt) {
 	std::vector<std::string> words;
 	std::string word;
 
@@ -164,6 +153,17 @@ bool Protocol::parsePacket(const std::string& pPkt) {
 		return true;
 	}
 	return false;
+}
+
+uint32_t Protocol::parsePort(std::string& pPkt) {
+	uint32_t port = 0;
+	size_t pos = 0;
+	if((pos = pPkt.find_first_of("$")) != std::string::npos) {
+		std::string strPort = pPkt.substr(pos+1);
+		port = std::stoi(strPort);
+		pPkt = pPkt.substr(0, pos);
+	}
+	return port;
 }
 
 void Protocol::forceQuit() {

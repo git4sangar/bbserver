@@ -49,12 +49,12 @@ StateMachine* IdleState::onWriteRequest() {
 	return ServerPrecommitState::getInstance(mpProtocol);
 }
 
-StateMachine* IdleState::onPrecommit(const struct sockaddr *pClientAddr) {
+StateMachine* IdleState::onPrecommit(std::string pHost, uint32_t pPort) {
 	mLogger << std::endl << MODULE_NAME << "--- IdleState::onPrecommit ---" << std::endl;
 	mLogger << MODULE_NAME << "Acq Lk, Add Tmr, Snd +Ak" << std::endl;
 	mpProtocol->grabWriteLock();
 	usleep(1000 * 100);
-	mpProtocol->sendMessageToPeer(pClientAddr, POSITIVE_ACK);
+	mpProtocol->respondBackToPeer(pHost, pPort, POSITIVE_ACK);
 	mpProtocol->addToTimer();
 	return ClientPrecommitState::getInstance(mpProtocol);
 }
@@ -107,23 +107,23 @@ StateMachine* ServerCommitState::onFailure() {
 	return IdleState::getInstance(mpProtocol);
 }
 
-StateMachine* ClientPrecommitState::onCommit(const struct sockaddr *pClientAddr) {
+StateMachine* ClientPrecommitState::onCommit(std::string pHost, uint32_t pPort) {
 	mLogger << std::endl << MODULE_NAME << "--- ClientPrecommitState::onCommit ---" << std::endl;
 	mLogger << MODULE_NAME << "Rmv Tmr, Wrt Msg, Brd Msg, Add Tmr" << std::endl;
 	mpProtocol->removeActiveTimer();
 	if(mpProtocol->writeOrReplaceMsg() > 0) {
 		usleep(1000 * 100);
-		mpProtocol->sendMessageToPeer(pClientAddr, SUCCESS);
+		mpProtocol->respondBackToPeer(pHost, pPort, SUCCESS);
 		mpProtocol->addToTimer();
 		return ClientCommitState::getInstance(mpProtocol);
 	}
 	usleep(1000 * 100);
-	mpProtocol->sendMessageToPeer(pClientAddr, UNSUCCESS);
+	mpProtocol->respondBackToPeer(pHost, pPort, UNSUCCESS);
 	mpProtocol->releaseWriteLock();
 	return IdleState::getInstance(mpProtocol);
 }
 
-StateMachine* ClientPrecommitState::onAbort(const struct sockaddr *pClientAddr) {
+StateMachine* ClientPrecommitState::onAbort(std::string pHost, uint32_t pPort) {
 	mLogger << std::endl << MODULE_NAME << "--- ClientPrecommitState::onAbort ---" << std::endl;
 	mLogger << MODULE_NAME << "Rmv Tmr, Rel Lk" << std::endl;
 	mpProtocol->removeActiveTimer();
@@ -138,7 +138,7 @@ StateMachine* ClientPrecommitState::onNegativeAckOrTimeout() {
 	return IdleState::getInstance(mpProtocol);
 }
 
-StateMachine* ClientCommitState::onSuccessful(const struct sockaddr *pClientAddr) {
+StateMachine* ClientCommitState::onSuccessful(std::string pHost, uint32_t pPort) {
 	mLogger << std::endl << MODULE_NAME << "--- ClientCommitState::onSuccessful ---" << std::endl;
 	mLogger << MODULE_NAME << "Rmv Tmr, Rel Lk" << std::endl;
 	mpProtocol->removeActiveTimer();
@@ -146,7 +146,7 @@ StateMachine* ClientCommitState::onSuccessful(const struct sockaddr *pClientAddr
 	return IdleState::getInstance(mpProtocol);
 }
 
-StateMachine* ClientCommitState::onUnsuccessful(const struct sockaddr *pClientAddr) {
+StateMachine* ClientCommitState::onUnsuccessful(std::string pHost, uint32_t pPort) {
 	mLogger << std::endl << MODULE_NAME << "--- ClientCommitState::onUnsuccessful ---" << std::endl;
 	mLogger << MODULE_NAME << "Rmv Tmr, Undo Wrt, Rel Lk" << std::endl;
 	mpProtocol->removeActiveTimer();

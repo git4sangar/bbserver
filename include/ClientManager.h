@@ -38,7 +38,7 @@ public:
 
 	void onConnect(int32_t connfd);
 	void onDisconnect(int32_t connfd);
-	bool onNetPacket(int32_t connfd, const std::string& pPkt);
+	bool onNetPacket(int32_t connfd, std::string pHost, const std::string& pPkt);
 	
 	void onSigHup();
 

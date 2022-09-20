@@ -6,7 +6,7 @@
 
 #include "Constants.h"
 #include "ReadWriteLock.h"
-#include "UDPManager.h"
+#include "TCPManager.h"
 #include "FileManager.h"
 #include "FileLogger.h"
 #include "Timer.h"
@@ -15,7 +15,7 @@
 using namespace util;
 
 class StateMachine;
-class Protocol : public UDPListener, public TimerListener, public std::enable_shared_from_this<Protocol>
+class Protocol : public TCPListener, public TimerListener, public std::enable_shared_from_this<Protocol>
 {
 public:
 	typedef std::shared_ptr<Protocol> Ptr;
@@ -36,10 +36,14 @@ public:
 	}
 
 	bool onWriteOrReplace(int32_t connfd, const std::string& pSender, const std::string& pMsg, size_t pReplaceNo = 0);
-	bool onNetPacket(const struct sockaddr *pClientAddr, const std::string& pPkt);
+	void onConnect(int32_t connfd) {}
+	void onDisconnect(int32_t connfd) {}
+	bool onNetPacket(int32_t connfd, std::string pHost, const std::string& pPkt);
 	void onTimeout(size_t pTimeoutId);
 
-	void sendMessageToPeer(const struct sockaddr *pClientAddr, const std::string& pMsg);
+	void respondBackToPeer(std::string pHost, uint32_t pPort, const std::string& pMsg) {
+		mpNetMgrSync->sendPacket(pHost, pPort, pMsg);
+	}
 	void sendWriteResponse(const std::string& pMsg, size_t pMsgNo = 0);
 
 	void grabReadLock() { mpRdWrtLock->read_lock(); }
@@ -58,13 +62,14 @@ public:
 	}
 	void clearAll();
 
-	UDPListener::Ptr getNetListenerPtr() { return shared_from_this(); }
+	TCPListener::Ptr getNetListenerPtr() { return shared_from_this(); }
 	Protocol::Ptr getSharePtr() { return shared_from_this(); }
 
 private:
-	bool parsePacket(const std::string& pPkt);
+	bool parseCommitPacket(const std::string& pPkt);
+	uint32_t parsePort(std::string& pPkt);
 
-	UDPManager::Ptr mpNetMgrSync;
+	TCPManager::Ptr mpNetMgrSync;
 	FileManager::Ptr mpFileMgr;
 	ReadWriteLock::Ptr mpRdWrtLock;
 	ConfigManager* mpCfgMgr;

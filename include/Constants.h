@@ -12,6 +12,7 @@
 #define PRECOMMIT_TIMEOUT_SECS	(3)
 
 #define BUFFSIZE 			(10*1024)
+#define SMALL_BUFFER        (128)
 #define GARBAGE_TIMEOUT_SEC (60)
 
 extern std::string PRECOMMIT;

@@ -24,7 +24,7 @@ namespace util {
 		~TCPListener() {}
         virtual void onConnect(int32_t connfd) = 0;
         virtual void onDisconnect(int32_t connfd) = 0;
-		virtual bool onNetPacket(int32_t connfd, const std::string& pPkt) = 0;
+		virtual bool onNetPacket(int32_t connfd, std::string pHost, const std::string& pPkt) = 0;
 	};
 
     class TCPManager {
@@ -41,13 +41,14 @@ namespace util {
 		}
 		~TCPManager() {}
 
+		void sendPacket(std::string pHost, unsigned int pPort, std::string strMsg);
 		void connectionManager(unsigned int pPort);
 		void quitReceiveThread();
 
     private:
 		TCPListener::Ptr mpListener;
 		unsigned int mPort;
-        std::vector<int32_t> mClientSocks;
+        std::map<int32_t, std::string> mClientSocks;
 		Logger& mLogger;
         int32_t mMasterSocket;
         fd_set mReadDescriptors;
